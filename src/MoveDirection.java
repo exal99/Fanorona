@@ -18,6 +18,25 @@ public enum MoveDirection {
 			   (fromPos[0] - deltaX == thisPos[0] && fromPos[1] - deltaY == thisPos[1]);
 	}
 	
+	int[] getNewPos(int[] thisPos, int[] fromPos) {
+		if (validMove(thisPos, fromPos)) {
+			if (fromPos[0] + deltaX == thisPos[0] && fromPos[1] + deltaY == thisPos[1]){
+				int[] res = {fromPos[0] - deltaX, fromPos[1] - deltaY};
+				return res;
+			} else {
+				int[] res = {fromPos[0] + deltaX, fromPos[1] + deltaY};
+				return res;
+			}			
+		} else {
+			return null;
+		}
+	}
+	
+	int[] getDelta() {
+		int[] res = {deltaX, deltaY};
+		return res;
+	}
+	
 	static MoveDirection getToken(char c) {
 		HashMap<Character, MoveDirection> directionMapping = new HashMap<Character, MoveDirection>();
 		directionMapping.put('-', HORIZONTAL);

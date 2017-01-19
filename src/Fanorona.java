@@ -10,12 +10,12 @@ public class Fanorona extends PApplet {
 	public void setup() {
 		fill(255);
 		p = new PlayingField(this);
+		surface.setResizable(true);
 	}
 	
 	public void draw() {
 		background(0,0,255);
 		p.draw();
-		noLoop();
 	}
 
 	public static void main(String[] args) {

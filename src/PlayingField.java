@@ -7,12 +7,22 @@ public class PlayingField {
 	private PApplet parrent;
 	private MoveDirection[][] directionsGrid;
 	private Piece[][] pieceGrid;
+	private Piece[][] actualPieceGrid;
+	
+	private int lastWidth;
+	private int lastHeight;
+	private float size;
 	
 	public PlayingField(PApplet parrent) {
 		this.parrent = parrent;
 		try {
-			directionsGrid = Parser.parseDirection("C:\\Users\\Alexander\\Documents\\Javaprogram\\Fanorona\\src\\board.txt");
-			pieceGrid = Parser.parsePieces("C:\\Users\\Alexander\\Documents\\Javaprogram\\Fanorona\\src\\board.txt", parrent);
+			directionsGrid = Parser.parseDirection("C:\\Users\\Alexander\\Documents\\Program (egengjorda)\\Javaprojekt\\Fanorona\\src\\board.txt");
+			pieceGrid = Parser.parsePieces("C:\\Users\\Alexander\\Documents\\Program (egengjorda)\\Javaprojekt\\Fanorona\\src\\board.txt", parrent);
+			actualPieceGrid = new Piece[directionsGrid.length][directionsGrid[0].length];
+			populatePieceGrid();
+			lastWidth = 0;
+			lastHeight = 0;
+			size = 0;
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -21,30 +31,73 @@ public class PlayingField {
 		
 	}
 	
+	private void populatePieceGrid() {
+		int actualRow = -1;
+		int actualCol = 0;
+		for (int row = 0; row < directionsGrid.length; row++) {
+			boolean entireDirection = true;
+			actualCol = 0;
+			for (int col = 0; col < directionsGrid[0].length; col++) {
+				if (directionsGrid[row][col] == MoveDirection.CONNECTION) {
+					if (entireDirection) {
+						actualRow++;
+						entireDirection = false;
+					}
+					int[] pos = {actualRow, actualCol};
+					actualPieceGrid[row][col] = pieceGrid[actualRow][actualCol].clone();
+					actualPieceGrid[row][col].setPos(pos);
+					
+					actualCol++;
+				}
+			}
+		}
+	}
+	
 	private int[] createPos(int a, int b) {
 		int[] r = {a, b};
 		return r;
 	}
 	
 	public void draw() {
-		float size = getSize();
+		
 		PVector start = getStartPos();
-		int actualRow = 0;
-		int actualCol = 0;
-		System.out.println(size + " " + start.x + ", " + start.y);
-		System.out.println(parrent.color(255, 255, 255));
-		for (int row = 0; row < pieceGrid.length; row++) {
-			if (pieceGrid[row][0] != null){
-				for (int col = 0; col < pieceGrid[0].length; col++) {
-					if (pieceGrid[row][col] != null) {
-						pieceGrid[row][col].draw(size/2, PVector.add(start, new PVector(actualCol * size - size/2, actualRow * size + size/2)));
-						actualCol++;
-					}
+		boolean updateValues = false;
+		if (parrent.width != lastWidth || parrent.height != lastHeight) {
+			updateValues = true;
+			lastWidth = parrent.width;
+			lastHeight = parrent.height;
+			size = getSize();
+		}
+		
+		for (int row = 0; row < directionsGrid.length; row++) {
+			for (int col = 0; col < directionsGrid[0].length; col++) {
+				if (directionsGrid[row][col] != MoveDirection.CONNECTION) {
+					drawLine(directionsGrid[row][col], createPos(row, col));
 				}
-				actualRow++;
-				actualCol = 0;
 			}
 		}
+		
+		for (int row = 0; row < pieceGrid.length; row++) {
+			for (int col = 0; col < pieceGrid[0].length; col++) {
+				Piece current = pieceGrid[row][col];
+				if (updateValues) {
+					current.setDisplayPos(PVector.add(start, new PVector(col * size, row * size)));
+					current.setRadius((size/2) * 2/3);
+					actualPieceGrid[current.getPos()[0]][current.getPos()[1]].setDisplayPos(current.getDisplayPos());
+				}
+				current.draw();
+			}
+		}
+		
+	}
+	
+	private void drawLine(MoveDirection direction, int[] pos) {
+		int[] xyDelta = direction.getDelta();
+		parrent.strokeWeight(3);
+		parrent.stroke(100);
+		Piece from = actualPieceGrid[pos[0] - xyDelta[1]][pos[1] - xyDelta[0]];
+		Piece to   = actualPieceGrid[pos[0] + xyDelta[1]][pos[1] + xyDelta[0]];
+		parrent.line(from.getDisplayPos().x, from.getDisplayPos().y, to.getDisplayPos().x, to.getDisplayPos().y);
 	}
 	
 	private float getSize() {
@@ -52,7 +105,7 @@ public class PlayingField {
 		int numWidth = pieceGrid[0].length;
 		float rectWidth = parrent.width / ((float) numWidth);
 		float rectHeight = parrent.height / ((float) numHeight);
-		return (rectWidth < rectHeight) ? rectWidth : rectHeight;
+		return (rectWidth < rectHeight) ? rectWidth  : rectHeight;
 	}
 	
 	private PVector getStartPos() {
@@ -61,9 +114,9 @@ public class PlayingField {
 		float rectWidth = parrent.width / ((float) numWidth);
 		float rectHeight = parrent.height / ((float) numHeight);
 		if (rectWidth < rectHeight) {
-			return new PVector(0, (parrent.height - pieceGrid.length * rectWidth) / 2);
+			return new PVector(rectWidth/2, (parrent.height - pieceGrid.length * rectWidth) / 2 + rectWidth/2);
 		} else {
-			return new PVector((parrent.width - pieceGrid[0].length * rectHeight)/2, 0); 
+			return new PVector((parrent.width - pieceGrid[0].length * rectHeight)/2 + rectHeight/2, rectHeight/2); 
 		}
 	}
 }
