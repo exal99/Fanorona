@@ -99,12 +99,10 @@ public class PlayingField {
 				}
 			}
 		}
-		if (found != null) {
-			for (Piece[] row : pieceGrid) {
-				for (Piece p : row) {
-					if (p != found) {
-						p.setSelected(false);
-					}
+		for (Piece[] row : pieceGrid) {
+			for (Piece p : row) {
+				if (p != found) {
+					p.setSelected(false);
 				}
 			}
 		}
