@@ -8,13 +8,15 @@ public class Piece {
 	private int color;
 	private int[] pos;
 	private boolean active;
+	private boolean selected;
 	
 	public Piece(PApplet parrent, int color, int[] pos) {
 		this.parrent = parrent;
 		this.color   = color;
 		this.pos     = pos;
 		active 		 = true;
-		displayPos = new PVector(0,0);
+		displayPos   = new PVector(0,0);
+		selected     = false;
 	}
 	
 	public void setDisplayPos(PVector newPos) {
@@ -33,6 +35,10 @@ public class Piece {
 		if (active) {
 			parrent.fill(color);
 			parrent.noStroke();
+			if (selected) {
+				parrent.strokeWeight(5);
+				parrent.stroke(255 - parrent.brightness(color));
+			}
 			parrent.ellipse(displayPos.x, displayPos.y, radius * 2, radius * 2);
 		}
 	}
@@ -51,6 +57,19 @@ public class Piece {
 	
 	public void setPos(int[] newPos) {
 		pos = newPos;
+	}
+	
+	public void setSelected(boolean newSelected) {
+		selected = newSelected;
+	}
+	
+	public boolean isClicked(int mouseX, int mouseY) {
+		if (PApplet.dist(mouseX, mouseY, displayPos.x, displayPos.y) <= radius) {
+			selected = !selected;
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	@Override

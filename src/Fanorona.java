@@ -17,6 +17,10 @@ public class Fanorona extends PApplet {
 		background(0,0,255);
 		p.draw();
 	}
+	
+	public void mousePressed() {
+		p.mousePressed(mouseX, mouseY);
+	}
 
 	public static void main(String[] args) {
 		PApplet.main("Fanorona");

@@ -59,7 +59,6 @@ public class PlayingField {
 	}
 	
 	public void draw() {
-		
 		PVector start = getStartPos();
 		boolean updateValues = false;
 		if (parrent.width != lastWidth || parrent.height != lastHeight) {
@@ -88,7 +87,27 @@ public class PlayingField {
 				current.draw();
 			}
 		}
-		
+	}
+	
+	public void mousePressed(int mouseX, int mouseY) {
+		Piece found = null;
+		for (Piece[] row : pieceGrid) {
+			for (Piece p : row) {
+				if (p.isClicked(mouseX, mouseY)) {
+					//something
+					found = p;
+				}
+			}
+		}
+		if (found != null) {
+			for (Piece[] row : pieceGrid) {
+				for (Piece p : row) {
+					if (p != found) {
+						p.setSelected(false);
+					}
+				}
+			}
+		}
 	}
 	
 	private void drawLine(MoveDirection direction, int[] pos) {
