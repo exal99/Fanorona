@@ -16,8 +16,8 @@ public class PlayingField {
 	public PlayingField(PApplet parrent) {
 		this.parrent = parrent;
 		try {
-			directionsGrid = Parser.parseDirection("C:\\Users\\Alexander\\Documents\\Program (egengjorda)\\Javaprojekt\\Fanorona\\src\\board.txt");
-			pieceGrid = Parser.parsePieces("C:\\Users\\Alexander\\Documents\\Program (egengjorda)\\Javaprojekt\\Fanorona\\src\\board.txt", parrent);
+			directionsGrid = Parser.parseDirection("C:\\Users\\Alexander\\Documents\\Javaprogram\\Fanorona\\src\\board.txt");
+			pieceGrid = Parser.parsePieces("C:\\Users\\Alexander\\Documents\\Javaprogram\\Fanorona\\src\\board.txt", parrent);
 			actualPieceGrid = new Piece[directionsGrid.length][directionsGrid[0].length];
 			populatePieceGrid();
 			lastWidth = 0;
@@ -53,9 +53,17 @@ public class PlayingField {
 		}
 	}
 	
-	private int[] createPos(int a, int b) {
+	public static int[] createPos(int a, int b) {
 		int[] r = {a, b};
 		return r;
+	}
+	
+	public MoveDirection[][] getDirections() {
+		return directionsGrid;
+	}
+	
+	public Piece[][] getActualPieceGrid() {
+		return actualPieceGrid;
 	}
 	
 	public void draw() {

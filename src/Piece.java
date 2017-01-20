@@ -72,6 +72,10 @@ public class Piece {
 		}
 	}
 	
+	public boolean isActive() {
+		return active;
+	}
+	
 	@Override
 	public Piece clone() {
 		int[] newPos = {pos[0], pos[1]};
