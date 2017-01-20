@@ -16,8 +16,9 @@ public class PlayingField {
 	public PlayingField(PApplet parrent) {
 		this.parrent = parrent;
 		try {
-			directionsGrid = Parser.parseDirection("C:\\Users\\Alexander\\Documents\\Javaprogram\\Fanorona\\src\\board.txt");
-			pieceGrid = Parser.parsePieces("C:\\Users\\Alexander\\Documents\\Javaprogram\\Fanorona\\src\\board.txt", parrent);
+
+			directionsGrid = Parser.parseDirection(System.getProperty("user.dir") + "\\data\\board.txt");
+			pieceGrid = Parser.parsePieces(System.getProperty("user.dir") + "\\data\\board.txt", parrent);
 			actualPieceGrid = new Piece[directionsGrid.length][directionsGrid[0].length];
 			populatePieceGrid();
 			lastWidth = 0;
