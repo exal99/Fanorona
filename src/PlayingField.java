@@ -18,7 +18,7 @@ public class PlayingField {
 		try {
 
 			directionsGrid = Parser.parseDirection(System.getProperty("user.dir") + "\\data\\board.txt");
-			pieceGrid = Parser.parsePieces(System.getProperty("user.dir") + "\\data\\board.txt", parrent);
+			pieceGrid = Parser.parsePieces(System.getProperty("user.dir") + "\\data\\board.txt", parrent, this);
 			actualPieceGrid = new Piece[directionsGrid.length][directionsGrid[0].length];
 			populatePieceGrid();
 			lastWidth = 0;

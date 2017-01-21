@@ -8,6 +8,17 @@ import java.util.List;
 import processing.core.PApplet;
 
 public class Parser {
+	private static ArrayList<Character> CHARACTERS;
+	static {
+		CHARACTERS = new ArrayList<Character>();
+		CHARACTERS.add('W');
+		CHARACTERS.add('B');
+		CHARACTERS.add('-');
+		CHARACTERS.add('|');
+		CHARACTERS.add('/');
+		CHARACTERS.add('\\');
+		CHARACTERS.add(' ');
+	}
 	
 	public static MoveDirection[][] parseDirection(String file) throws ParseException {
 		MoveDirection directions[][] = null;
@@ -39,7 +50,7 @@ public class Parser {
 		return directions;
 	}
 	
-	public static Piece[][] parsePieces(String file, PApplet parrent) throws ParseException {
+	public static Piece[][] parsePieces(String file, PApplet parrent, PlayingField grid) throws ParseException {
 		Piece pieces[][] = null;
 		ArrayList<ArrayList<Piece>> listPieces = new ArrayList<ArrayList<Piece>>();
 		try {
@@ -56,12 +67,13 @@ public class Parser {
 						int color = Piece.getColor(lines.get(line).charAt(pos), parrent);
 						if (color != 0) {
 							int[] arrayPos = {line, pos};
-							listPieces.get(listPieces.size() - 1).add(new Piece(parrent, color, arrayPos));
-						}
-						if (lines.get(line).charAt(pos) == ' ') {
+							listPieces.get(listPieces.size() - 1).add(new Piece(parrent, color, arrayPos, grid));
+						} else if (lines.get(line).charAt(pos) == ' ') {
 							int[] arrayPos = {line, pos};
-							listPieces.get(listPieces.size() - 1).add(new Piece(parrent, color, arrayPos));
+							listPieces.get(listPieces.size() - 1).add(new Piece(parrent, color, arrayPos, grid));
 							listPieces.get(listPieces.size() - 1).get(listPieces.get(listPieces.size() - 1).size() - 1).setActive(false);
+						} else if (!CHARACTERS.contains((Character) lines.get(line).charAt(pos))){
+							throw new ParseException("Invalid character at line: " + line + " column: " + pos + " \"" + lines.get(line).charAt(pos) + "\"", line);
 						}
 						if (pos == lines.get(line).length() - 1 && pos < pieces[0].length - 1 && pos != 0) {
 							throw new ParseException("Uneaven length of lines at line: " + line, line);

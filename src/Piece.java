@@ -9,11 +9,13 @@ public class Piece {
 	private int[] pos;
 	private boolean active;
 	private boolean selected;
+	private PlayingField grid;
 	
-	public Piece(PApplet parrent, int color, int[] pos) {
+	public Piece(PApplet parrent, int color, int[] pos, PlayingField grid) {
 		this.parrent = parrent;
 		this.color   = color;
 		this.pos     = pos;
+		this.grid 	 = grid;
 		active 		 = true;
 		displayPos   = new PVector(0,0);
 		selected     = false;
@@ -79,7 +81,7 @@ public class Piece {
 	@Override
 	public Piece clone() {
 		int[] newPos = {pos[0], pos[1]};
-		return new Piece(parrent, color, newPos);
+		return new Piece(parrent, color, newPos, grid);
 	}
 	
 	@Override
