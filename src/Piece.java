@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 import processing.core.PApplet;
 import processing.core.PVector;
 
@@ -78,10 +80,66 @@ public class Piece {
 		return active;
 	}
 	
+	public boolean canCapture() {
+		ArrayList<int[]> possibleMoves = getAllPossibleMoves();
+		for (int[] newPos : possibleMoves) {
+			if (isCaptureMove(newPos[0], newPos[1])) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private ArrayList<int[]> getAllPossibleMoves() {
+		MoveDirection[][] directions = grid.getDirections();
+		ArrayList<int[]> possibleMoves = new ArrayList<int[]>();
+		for (int dRow = -1; dRow < 2; dRow++) {
+			for (int dCol = -1; dCol < 2; dCol++) {
+				if (!(dRow == 0 && dCol == 0)) {
+					int[] directionPos = PlayingField.createPos(pos[0] + dRow, pos[1] + dCol);
+					int[] newPos = directions[pos[0] + dRow][pos[1] + dCol].getNewPos(directionPos, pos);
+					if (newPos != null && grid.getPiece(newPos[0], newPos[1]) != null && !grid.getPiece(newPos[0], newPos[1]).isActive()) {
+						possibleMoves.add(newPos);
+					}
+				}
+			}
+		}
+		return possibleMoves;
+	}
+	
+	public boolean canMove() {
+		return false;
+	}
+	
+	public boolean isValidMove(int newX, int newY) {
+		return false;
+	}
+	
+	private boolean isCaptureMove(int newX, int newY) {
+		int[] direction = {newX - pos[0], newY - pos[1]};
+		Piece pushPiece = grid.getPiece(newX + direction[0], newY + direction[1]);
+		Piece pullPiece = grid.getPiece(pos[0] - direction[0], pos[1] - direction[1]);
+		if ((pushPiece != null && pushPiece.isActive() && pushPiece.color != color) ||
+			(pullPiece != null && pullPiece.isActive() && pullPiece.color != color)) {
+			return true;
+		}
+		return false;
+	}
+	
+	private void pullCapture(int newX, int newY) {
+		
+	}
+	
+	private void pushCapture(int newX, int newY) {
+		
+	}
+	
 	@Override
 	public Piece clone() {
 		int[] newPos = {pos[0], pos[1]};
-		return new Piece(parrent, color, newPos, grid);
+		Piece res = new Piece(parrent, color, newPos, grid);
+		res.active = active;
+		return res;
 	}
 	
 	@Override

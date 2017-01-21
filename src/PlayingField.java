@@ -98,6 +98,14 @@ public class PlayingField {
 		}
 	}
 	
+	public Piece getPiece(int row, int col) {
+		if (row >= 0 && row < actualPieceGrid.length && col >= 0 && col < actualPieceGrid[0].length) {
+			return actualPieceGrid[row][col];
+		} else {
+			return null;
+		}
+	}
+	
 	public void mousePressed(int mouseX, int mouseY) {
 		Piece found = null;
 		for (Piece[] row : pieceGrid) {
