@@ -33,7 +33,7 @@ public enum MoveDirection {
 	}
 	
 	int[] getDelta() {
-		int[] res = {deltaX, deltaY};
+		int[] res = {deltaY, deltaX};
 		return res;
 	}
 	

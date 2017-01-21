@@ -8,10 +8,16 @@ public class PlayingField {
 	private MoveDirection[][] directionsGrid;
 	private Piece[][] pieceGrid;
 	private Piece[][] actualPieceGrid;
+	private Piece selected;
+	private Piece lastMoved;
+	
+	private int currentPlayer;
 	
 	private int lastWidth;
 	private int lastHeight;
 	private float size;
+	
+	private boolean moved;
 	
 	public PlayingField(PApplet parrent) {
 		this.parrent = parrent;
@@ -24,6 +30,9 @@ public class PlayingField {
 			lastWidth = 0;
 			lastHeight = 0;
 			size = 0;
+			selected = null;
+			currentPlayer = Piece.getColor('W', parrent);
+			moved = false;
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -69,12 +78,19 @@ public class PlayingField {
 	
 	public void draw() {
 		PVector start = getStartPos();
-		boolean updateValues = false;
-		if (parrent.width != lastWidth || parrent.height != lastHeight) {
-			updateValues = true;
+		if (parrent.width != lastWidth || parrent.height != lastHeight || moved) {
 			lastWidth = parrent.width;
 			lastHeight = parrent.height;
 			size = getSize();
+			moved = false;
+			for (int row = 0; row < pieceGrid.length; row++) {
+				for (int col = 0; col < pieceGrid[0].length; col++) {
+					Piece current = pieceGrid[row][col];
+					current.setDisplayPos(PVector.add(start, new PVector(col * size, row * size)));
+					current.setRadius((size/2) * 2/3);
+					actualPieceGrid[current.getPos()[0]][current.getPos()[1]].setDisplayPos(current.getDisplayPos());
+				}
+			}
 		}
 		
 		for (int row = 0; row < directionsGrid.length; row++) {
@@ -84,18 +100,25 @@ public class PlayingField {
 				}
 			}
 		}
-		
 		for (int row = 0; row < pieceGrid.length; row++) {
 			for (int col = 0; col < pieceGrid[0].length; col++) {
 				Piece current = pieceGrid[row][col];
-				if (updateValues) {
-					current.setDisplayPos(PVector.add(start, new PVector(col * size, row * size)));
-					current.setRadius((size/2) * 2/3);
-					actualPieceGrid[current.getPos()[0]][current.getPos()[1]].setDisplayPos(current.getDisplayPos());
-				}
 				current.draw();
 			}
 		}
+	}
+	
+	public boolean mustBeCapture() {
+		for (Piece[] row : pieceGrid) {
+			for (Piece p : row) {
+				if (p.getColor() == currentPlayer) {
+					if (p.canCapture()) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 	
 	public Piece getPiece(int row, int col) {
@@ -110,18 +133,71 @@ public class PlayingField {
 		Piece found = null;
 		for (Piece[] row : pieceGrid) {
 			for (Piece p : row) {
-				if (p.isClicked(mouseX, mouseY)) {
+				if (p.isClicked(mouseX, mouseY) && (p.getColor() == currentPlayer || (selected != null && !p.isActive()))) {
 					//something
 					found = p;
 				}
 			}
 		}
-		for (Piece[] row : pieceGrid) {
-			for (Piece p : row) {
-				if (p != found) {
-					p.setSelected(false);
+		if (selected != null && found != null && selected.getColor() == currentPlayer) {
+			makeMove(found);
+		}
+		if (lastMoved == null) {
+			selected = found;
+			for (Piece[] row : pieceGrid) {
+				for (Piece p : row) {
+					if (p != found) {
+						p.setSelected(false);
+					}
 				}
 			}
+		} else {
+			found.setSelected(false);
+		}
+	}
+	
+	public void dissablePiece(int row, int col) {
+		pieceGrid[row][col].setActive(false);
+	}
+	
+	public void dissablePiece(int[] pos) {
+		dissablePiece(pos[0], pos[1]);
+	}
+	
+	private void makeMove(Piece toMoveTo) {
+		if (mustBeCapture()) {
+			if (selected.isCaptureMove(toMoveTo)) {
+				move(selected, toMoveTo);
+			}
+		} else if (selected.canMoveTo(toMoveTo)) {
+			move(selected, toMoveTo);
+		}
+	}
+	
+	private void move(Piece from, Piece to) {
+		if (from.isCaptureMove(to)) {
+			from.capture(to);
+		}
+		int[] fActualPos = from.getPos();
+		int[] tActualPos = to.getPos();
+		int[] fPos = actualPieceGrid[fActualPos[0]][fActualPos[1]].getPos();
+		int[] tPos = actualPieceGrid[tActualPos[0]][tActualPos[1]].getPos();
+		pieceGrid[fPos[0]][fPos[1]] = to;
+		pieceGrid[tPos[0]][tPos[1]] = from;
+		to.setPos(fActualPos);
+		from.setPos(tActualPos);
+		Piece temp = actualPieceGrid[fActualPos[0]][fActualPos[1]];
+		actualPieceGrid[fActualPos[0]][fActualPos[1]] = actualPieceGrid[tActualPos[0]][tActualPos[1]];
+		actualPieceGrid[tActualPos[0]][tActualPos[1]] = temp;
+		actualPieceGrid[fActualPos[0]][fActualPos[1]].setPos(fPos);
+		temp.setPos(tPos);
+		moved = true;
+		if (from.canCapture()) {
+			lastMoved = from;
+			
+		} else {
+			lastMoved = null;
+			currentPlayer = (currentPlayer == Piece.getColor('W', parrent)) ? Piece.getColor('B', parrent) : Piece.getColor('W', parrent);
 		}
 	}
 	
@@ -129,8 +205,8 @@ public class PlayingField {
 		int[] xyDelta = direction.getDelta();
 		parrent.strokeWeight(3);
 		parrent.stroke(100);
-		Piece from = actualPieceGrid[pos[0] - xyDelta[1]][pos[1] - xyDelta[0]];
-		Piece to   = actualPieceGrid[pos[0] + xyDelta[1]][pos[1] + xyDelta[0]];
+		Piece from = actualPieceGrid[pos[0] - xyDelta[0]][pos[1] - xyDelta[1]];
+		Piece to   = actualPieceGrid[pos[0] + xyDelta[0]][pos[1] + xyDelta[1]];
 		parrent.line(from.getDisplayPos().x, from.getDisplayPos().y, to.getDisplayPos().x, to.getDisplayPos().y);
 	}
 	

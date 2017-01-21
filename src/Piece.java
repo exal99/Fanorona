@@ -95,7 +95,7 @@ public class Piece {
 		ArrayList<int[]> possibleMoves = new ArrayList<int[]>();
 		for (int dRow = -1; dRow < 2; dRow++) {
 			for (int dCol = -1; dCol < 2; dCol++) {
-				if (!(dRow == 0 && dCol == 0)) {
+				if (!(dRow == 0 && dCol == 0) && pos[0] + dRow >= 0 && pos[0] + dRow < directions.length && pos[1] + dCol >= 0 && pos[1] + dCol < directions[0].length) {
 					int[] directionPos = PlayingField.createPos(pos[0] + dRow, pos[1] + dCol);
 					int[] newPos = directions[pos[0] + dRow][pos[1] + dCol].getNewPos(directionPos, pos);
 					if (newPos != null && grid.getPiece(newPos[0], newPos[1]) != null && !grid.getPiece(newPos[0], newPos[1]).isActive()) {
@@ -107,12 +107,21 @@ public class Piece {
 		return possibleMoves;
 	}
 	
-	public boolean canMove() {
-		return false;
+	public boolean canMoveTo(Piece p) {
+		if (!p.isActive()) {
+			return isValidMove(p.pos[0], p.pos[1]);
+		} else {
+			return false;
+		}
 	}
 	
-	public boolean isValidMove(int newX, int newY) {
-		return false;
+	private boolean isValidMove(int newX, int newY) {
+		int[] direction = {newX - pos[0], newY - pos[1]};
+		if (grid.getDirections()[pos[0] + direction[0] / 2][pos[1] + direction[1] / 2].validMove(PlayingField.createPos(direction[0]/2, direction[1]/2), pos)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	private boolean isCaptureMove(int newX, int newY) {
@@ -124,6 +133,41 @@ public class Piece {
 			return true;
 		}
 		return false;
+	}
+	
+	public boolean isCaptureMove(Piece p) {
+		if (!p.isActive()) {
+			return isCaptureMove(p.pos[0], p.pos[1]);
+		} else {
+			return false;
+		}
+	}
+	
+	public void capture(Piece p) {
+		int newX = p.getPos()[0];
+		int newY = p.getPos()[1];
+		int[] direction = {newX - pos[0], newY - pos[1]};
+		Piece pushPiece = grid.getPiece(newX + direction[0], newY + direction[1]);
+		Piece pullPiece = grid.getPiece(pos[0] - direction[0], pos[1] - direction[1]);
+		if (pushPiece != null && pushPiece.isActive() && pushPiece.color != color) {
+			Piece currPiece = pushPiece;
+			int multiplyer = 2;
+			while(currPiece != null && currPiece.isActive() && currPiece.color != color) {
+				grid.dissablePiece(currPiece.getPos());
+				currPiece.setActive(false);
+				currPiece = grid.getPiece(newX + multiplyer * direction[0], newY + multiplyer * direction[1]);
+				multiplyer += 1;
+			}
+		}
+		if (pullPiece != null && pullPiece.isActive() && pullPiece.color != color) {
+			Piece currPiece = pullPiece;
+			int multiplyer = 1;
+			while(currPiece != null && currPiece.isActive() && currPiece.color != color) {
+				currPiece.setActive(false);
+				currPiece = grid.getPiece(newX - multiplyer * direction[0], newY - multiplyer * direction[1]);
+				multiplyer += 2;
+			}
+		}
 	}
 	
 	private void pullCapture(int newX, int newY) {
@@ -147,7 +191,7 @@ public class Piece {
 		if (!active) {
 			return " ";
 		}
-		if (color == -1) {
+		if (color == parrent.color(0)) {
 			return "B";
 		}else {
 			return "W";
