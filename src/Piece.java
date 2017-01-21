@@ -7,6 +7,7 @@ public class Piece {
 	private PApplet parrent;
 	private PVector displayPos;
 	private float radius;
+	private float decreesingRadius;
 	private int color;
 	private int[] pos;
 	private boolean active;
@@ -32,6 +33,9 @@ public class Piece {
 	}
 	
 	public void setActive(boolean newActive) {
+		if (!newActive) {
+			decreesingRadius = radius;
+		}
 		active = newActive;
 	}
 	
@@ -44,6 +48,15 @@ public class Piece {
 				parrent.stroke(255 - parrent.brightness(color));
 			}
 			parrent.ellipse(displayPos.x, displayPos.y, radius * 2, radius * 2);
+		} else if (decreesingRadius > 0) {
+			parrent.fill(color);
+			parrent.noStroke();
+			if (selected) {
+				parrent.strokeWeight(5);
+				parrent.stroke(255 - parrent.brightness(color));
+			}
+			parrent.ellipse(displayPos.x, displayPos.y, decreesingRadius * 2, decreesingRadius * 2);
+			decreesingRadius -= 4;
 		}
 	}
 	
@@ -161,11 +174,12 @@ public class Piece {
 		}
 		if (pullPiece != null && pullPiece.isActive() && pullPiece.color != color) {
 			Piece currPiece = pullPiece;
-			int multiplyer = 1;
+			int multiplyer = 2;
 			while(currPiece != null && currPiece.isActive() && currPiece.color != color) {
+				grid.dissablePiece(currPiece.getPos());
 				currPiece.setActive(false);
-				currPiece = grid.getPiece(newX - multiplyer * direction[0], newY - multiplyer * direction[1]);
-				multiplyer += 2;
+				currPiece = grid.getPiece(pos[0] - multiplyer * direction[0], pos[1] - multiplyer * direction[1]);
+				multiplyer += 1;
 			}
 		}
 	}
