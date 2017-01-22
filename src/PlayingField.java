@@ -111,7 +111,7 @@ public class PlayingField {
 	public boolean mustBeCapture() {
 		for (Piece[] row : pieceGrid) {
 			for (Piece p : row) {
-				if (p.getColor() == currentPlayer) {
+				if (p.getColor() == currentPlayer && p.isActive()) {
 					if (p.canCapture()) {
 						return true;
 					}
@@ -173,11 +173,15 @@ public class PlayingField {
 	private void makeMove(Piece toMoveTo) {
 		if (selected.canMoveTo(toMoveTo)) {
 			if (mustBeCapture()) {
+				System.out.println("MUST CAPTURE");
 				if (selected.isCaptureMove(toMoveTo)) {
 					move(selected, toMoveTo);
 				}
-			} else if (selected.canMoveTo(toMoveTo)) {
+			} else {
+				int currPlayer = currentPlayer;
 				move(selected, toMoveTo);
+				currentPlayer = (currPlayer == Piece.getColor('W', parrent)) ? Piece.getColor('B', parrent) : Piece.getColor('W', parrent);
+				lastMoved = null;
 			}
 		}
 	}
