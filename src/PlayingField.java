@@ -152,7 +152,13 @@ public class PlayingField {
 				}
 			}
 		} else {
-			found.setSelected(false);
+			for (Piece[] row : pieceGrid) {
+				for (Piece p : row) {
+					if (p != selected) {
+						p.setSelected(false);
+					}
+				}
+			}
 		}
 	}
 	
@@ -165,12 +171,14 @@ public class PlayingField {
 	}
 	
 	private void makeMove(Piece toMoveTo) {
-		if (mustBeCapture()) {
-			if (selected.isCaptureMove(toMoveTo)) {
+		if (selected.isValidMove(toMoveTo)) {
+			if (mustBeCapture()) {
+				if (selected.isCaptureMove(toMoveTo)) {
+					move(selected, toMoveTo);
+				}
+			} else if (selected.canMoveTo(toMoveTo)) {
 				move(selected, toMoveTo);
 			}
-		} else if (selected.canMoveTo(toMoveTo)) {
-			move(selected, toMoveTo);
 		}
 	}
 	

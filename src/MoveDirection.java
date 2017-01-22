@@ -21,10 +21,10 @@ public enum MoveDirection {
 	int[] getNewPos(int[] thisPos, int[] fromPos) {
 		if (validMove(thisPos, fromPos)) {
 			if (fromPos[0] + deltaY == thisPos[0] && fromPos[1] + deltaX == thisPos[1]){
-				int[] res = {fromPos[0] - 2 * deltaY, fromPos[1] - 2 * deltaX};
+				int[] res = {fromPos[0] + 2 * deltaY, fromPos[1] + 2 * deltaX};
 				return res;
 			} else {
-				int[] res = {fromPos[0] + 2 * deltaY, fromPos[1] + 2 * deltaX};
+				int[] res = {fromPos[0] - 2 * deltaY, fromPos[1] - 2 * deltaX};
 				return res;
 			}			
 		} else {

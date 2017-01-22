@@ -130,8 +130,16 @@ public class Piece {
 	
 	private boolean isValidMove(int newX, int newY) {
 		int[] direction = {newX - pos[0], newY - pos[1]};
-		if (grid.getDirections()[pos[0] + direction[0] / 2][pos[1] + direction[1] / 2].validMove(PlayingField.createPos(direction[0]/2, direction[1]/2), pos)) {
+		if (grid.getDirections()[pos[0] + direction[0] / 2][pos[1] + direction[1] / 2].validMove(PlayingField.createPos(pos[0] + direction[0] / 2,pos[1] + direction[1] / 2), pos)) {
 			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public boolean isValidMove(Piece p) {
+		if (!p.isActive()) {
+			return isValidMove(p.pos[0], p.pos[1]);
 		} else {
 			return false;
 		}
