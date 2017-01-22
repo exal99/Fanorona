@@ -15,6 +15,8 @@ public class Piece {
 	private boolean selected;
 	private PlayingField grid;
 	private boolean canBeSelected;
+	private ArrayList<int[]> visited;
+	private int[] lastDirection;
 	
 	public Piece(PApplet parrent, int color, int[] pos, PlayingField grid) {
 		this.parrent = parrent;
@@ -25,6 +27,8 @@ public class Piece {
 		displayPos   = new PVector(0,0);
 		selected     = false;
 		canBeSelected = false;
+		visited 	 = new ArrayList<int[]>();
+		lastDirection = null;
 	}
 	
 	public void setDisplayPos(PVector newPos) {
@@ -92,7 +96,14 @@ public class Piece {
 	}
 	
 	public void setPos(int[] newPos) {
+		visited.add(pos);
+		lastDirection = PlayingField.createPos(newPos[0] - pos[0], newPos[1] - pos[1]);
 		pos = newPos;
+	}
+	
+	public void resetMovement() {
+		visited.clear();
+		lastDirection = null;
 	}
 	
 	public void setSelected(boolean newSelected) {
@@ -149,12 +160,27 @@ public class Piece {
 	
 	private boolean isValidMove(int newX, int newY) {
 		int[] direction = {newX - pos[0], newY - pos[1]};
-		if (grid.getDirections()[pos[0] + direction[0] / 2][pos[1] + direction[1] / 2].validMove(PlayingField.createPos(pos[0] + direction[0] / 2,pos[1] + direction[1] / 2), pos) &&
-			!grid.getActualPieceGrid()[newX][newY].isActive()) {
+		MoveDirection move = grid.getDirections()[pos[0] + direction[0] / 2][pos[1] + direction[1] / 2];
+		if (move.validMove(PlayingField.createPos(pos[0] + direction[0] / 2,pos[1] + direction[1] / 2), pos) &&
+			!grid.getActualPieceGrid()[newX][newY].isActive() && !containsPos(PlayingField.createPos(newX, newY)) &&
+			validDirection(direction)) {
 			return true;
 		} else {
 			return false;
 		}
+	}
+	
+	private boolean containsPos(int[] pos) {
+		for (int[] posToCheck : visited) {
+			if (posToCheck[0] == pos[0] && posToCheck[1] == pos[1]) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean validDirection(int[] direction) {
+		return (lastDirection == null) || (lastDirection[0] != direction[0] || lastDirection[1] != direction[1]);
 	}
 	
 	private boolean isCaptureMove(int newX, int newY) {
