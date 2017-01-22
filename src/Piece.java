@@ -6,6 +6,7 @@ import processing.core.PVector;
 public class Piece {
 	private PApplet parrent;
 	private PVector displayPos;
+	private PVector newPos;
 	private float radius;
 	private float decreesingRadius;
 	private int color;
@@ -25,7 +26,8 @@ public class Piece {
 	}
 	
 	public void setDisplayPos(PVector newPos) {
-		displayPos = newPos;
+		this.newPos = newPos;
+		System.out.println("UPDATE POS " + (displayPos.x - this.newPos.x) + " " +  (displayPos.y - newPos.y));
 	}
 	
 	public void setRadius(float newRadius) {
@@ -48,6 +50,12 @@ public class Piece {
 				parrent.stroke(255 - parrent.brightness(color));
 			}
 			parrent.ellipse(displayPos.x, displayPos.y, radius * 2, radius * 2);
+			if ((displayPos.x - newPos.x < -3 || displayPos.x - newPos.x > 3) || displayPos.y - newPos.y < -3 || displayPos.y - newPos.y > 3) {
+				displayPos.add(PVector.sub(newPos, displayPos).normalize().mult(6));
+			} else if (displayPos.x != newPos.x || displayPos.y != newPos.y) {
+				displayPos.x = newPos.x;
+				displayPos.y = newPos.y;
+			}
 		} else if (decreesingRadius > 0) {
 			parrent.fill(color);
 			parrent.noStroke();
@@ -61,7 +69,7 @@ public class Piece {
 	}
 	
 	public PVector getDisplayPos() {
-		return displayPos;
+		return newPos;
 	}
 	
 	public int[] getPos() {
@@ -81,7 +89,7 @@ public class Piece {
 	}
 	
 	public boolean isClicked(int mouseX, int mouseY) {
-		if (PApplet.dist(mouseX, mouseY, displayPos.x, displayPos.y) <= radius) {
+		if (PApplet.dist(mouseX, mouseY, newPos.x, newPos.y) <= radius) {
 			selected = !selected;
 			return true;
 		} else {
