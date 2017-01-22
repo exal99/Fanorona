@@ -171,7 +171,7 @@ public class PlayingField {
 	}
 	
 	private void makeMove(Piece toMoveTo) {
-		if (selected.isValidMove(toMoveTo)) {
+		if (selected.canMoveTo(toMoveTo)) {
 			if (mustBeCapture()) {
 				if (selected.isCaptureMove(toMoveTo)) {
 					move(selected, toMoveTo);

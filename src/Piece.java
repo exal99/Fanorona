@@ -145,14 +145,6 @@ public class Piece {
 		}
 	}
 	
-	public boolean isValidMove(Piece p) {
-		if (!p.isActive()) {
-			return isValidMove(p.pos[0], p.pos[1]);
-		} else {
-			return false;
-		}
-	}
-	
 	private boolean isCaptureMove(int newX, int newY) {
 		int[] direction = {newX - pos[0], newY - pos[1]};
 		Piece pushPiece = grid.getPiece(newX + direction[0], newY + direction[1]);
