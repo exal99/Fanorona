@@ -17,6 +17,8 @@ public class Piece {
 	private boolean canBeSelected;
 	private ArrayList<int[]> visited;
 	private int[] lastDirection;
+	private boolean requireConferm;
+	private Piece[] canConfermWith;
 	
 	public Piece(PApplet parrent, int color, int[] pos, PlayingField grid) {
 		this.parrent = parrent;
@@ -29,6 +31,8 @@ public class Piece {
 		canBeSelected = false;
 		visited 	 = new ArrayList<int[]>();
 		lastDirection = null;
+		requireConferm = false;
+		canConfermWith = new Piece[2];
 	}
 	
 	public void setDisplayPos(PVector newPos) {
@@ -48,6 +52,10 @@ public class Piece {
 	
 	public void setCanSelect(boolean newVal) {
 		canBeSelected = newVal;
+	}
+	
+	public boolean requiresConfermation() {
+		return requireConferm;
 	}
 	
 	public void draw() {
@@ -208,25 +216,62 @@ public class Piece {
 		int[] direction = {newX - pos[0], newY - pos[1]};
 		Piece pushPiece = grid.getPiece(newX + direction[0], newY + direction[1]);
 		Piece pullPiece = grid.getPiece(pos[0] - direction[0], pos[1] - direction[1]);
-		if (pushPiece != null && pushPiece.isActive() && pushPiece.color != color) {
-			Piece currPiece = pushPiece;
-			int multiplyer = 2;
-			while(currPiece != null && currPiece.isActive() && currPiece.color != color) {
-				grid.dissablePiece(currPiece.getPos());
-				currPiece.setActive(false);
-				currPiece = grid.getPiece(newX + multiplyer * direction[0], newY + multiplyer * direction[1]);
-				multiplyer += 1;
+		if (!((pushPiece != null && pushPiece.isActive() && pushPiece.color != color) && (pullPiece != null && pullPiece.isActive() && pullPiece.color != color))){
+			if (pushPiece != null && pushPiece.isActive() && pushPiece.color != color) {
+				Piece currPiece = pushPiece;
+				int multiplyer = 2;
+				while(currPiece != null && currPiece.isActive() && currPiece.color != color) {
+					grid.dissablePiece(currPiece.getPos());
+					currPiece.setActive(false);
+					currPiece = grid.getPiece(newX + multiplyer * direction[0], newY + multiplyer * direction[1]);
+					multiplyer += 1;
+				}
 			}
+			if (pullPiece != null && pullPiece.isActive() && pullPiece.color != color) {
+				Piece currPiece = pullPiece;
+				int multiplyer = 2;
+				while(currPiece != null && currPiece.isActive() && currPiece.color != color) {
+					grid.dissablePiece(currPiece.getPos());
+					currPiece.setActive(false);
+					currPiece = grid.getPiece(pos[0] - multiplyer * direction[0], pos[1] - multiplyer * direction[1]);
+					multiplyer += 1;
+				}
+			}
+		} else {
+			requireConferm = true;
+			canConfermWith[0] = grid.getCorospondingPiece(pullPiece);
+			canConfermWith[1] = grid.getCorospondingPiece(pushPiece);
 		}
-		if (pullPiece != null && pullPiece.isActive() && pullPiece.color != color) {
-			Piece currPiece = pullPiece;
-			int multiplyer = 2;
+	}
+	
+	public void conferm(Piece p) {
+		if (canConfermWith[0] == p || canConfermWith[1] == p) {
+			int newX = p.getPos()[0];
+			int newY = p.getPos()[1];
+			int[] direction = {newX - pos[0], newY - pos[1]};
+			if (direction[0] == -4 || direction[0] == 4 || direction[1] == -4 || direction[1] == 4) {
+				direction = PlayingField.createPos(direction[0] / 2, direction[1] / 2);
+			}
+			Piece currPiece = p;
+			int multiplyer = 1;
 			while(currPiece != null && currPiece.isActive() && currPiece.color != color) {
-				grid.dissablePiece(currPiece.getPos());
 				currPiece.setActive(false);
-				currPiece = grid.getPiece(pos[0] - multiplyer * direction[0], pos[1] - multiplyer * direction[1]);
+				grid.getPiece(currPiece.getPos()[0], currPiece.getPos()[1]).setActive(false);
+				currPiece = grid.getCorospondingPiece(grid.getPiece(newX + multiplyer * direction[0], newY + multiplyer * direction[1]));
 				multiplyer += 1;
 			}
+//			} else {
+//				Piece currPiece = p;
+//				int multiplyer = 1;
+//				while(currPiece != null && currPiece.isActive() && currPiece.color != color) {
+//					grid.getPiece(currPiece.getPos()[0], currPiece.getPos()[1]).setActive(false);
+//					currPiece.setActive(false);
+//					currPiece = grid.getPiece(pos[0] - multiplyer * direction[0], pos[1] - multiplyer * direction[1]);
+//					multiplyer += 1;
+//				}
+//			}
+			requireConferm = false;
+			canConfermWith = new Piece[2];
 		}
 	}
 	

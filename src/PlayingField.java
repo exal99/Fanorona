@@ -19,6 +19,8 @@ public class PlayingField {
 	private float size;
 	
 	private boolean moved;
+	private boolean mustConferm;
+	private Piece toConfermTo;
 	
 	public PlayingField(PApplet parrent) {
 		this.parrent = parrent;
@@ -139,6 +141,12 @@ public class PlayingField {
 				if (p.isClicked(mouseX, mouseY) && (p.getColor() == currentPlayer || (selected != null && !p.isActive()))) {
 					//something
 					found = p;
+				} else if (p.isClicked(mouseX, mouseY) && mustConferm) {
+					toConfermTo.conferm(p);
+					mustConferm = toConfermTo.requiresConfermation();
+					if (!mustConferm) {
+						toConfermTo = null;
+					}
 				}
 			}
 		}
@@ -210,7 +218,7 @@ public class PlayingField {
 	}
 	
 	private void makeMove(Piece toMoveTo) {
-		if (selected.canMoveTo(toMoveTo)) {
+		if (selected.canMoveTo(toMoveTo) && !mustConferm) {
 			if (mustBeCapture()) {
 				if (selected.isCaptureMove(toMoveTo)) {
 					move(selected, toMoveTo);
@@ -221,6 +229,15 @@ public class PlayingField {
 				currentPlayer = (currPlayer == Piece.getColor('W', parrent)) ? Piece.getColor('B', parrent) : Piece.getColor('W', parrent);
 				lastMoved = null;
 			}
+		}
+	}
+	
+	public Piece getCorospondingPiece(Piece p) {
+		if (p != null && p.getPos()[0] >= 0 && p.getPos()[0] < pieceGrid.length &&
+						 p.getPos()[1] >= 0 && p.getPos()[1] < pieceGrid[0].length){
+			return pieceGrid[p.getPos()[0]][p.getPos()[1]];
+		} else {
+			return null;
 		}
 	}
 	
@@ -244,7 +261,10 @@ public class PlayingField {
 		moved = true;
 		if (from.canCapture()) {
 			lastMoved = from;
-			
+			mustConferm = from.requiresConfermation();
+			if (mustConferm) {
+				toConfermTo = from;
+			}
 		} else {
 			lastMoved = null;
 			currentPlayer = (currentPlayer == Piece.getColor('W', parrent)) ? Piece.getColor('B', parrent) : Piece.getColor('W', parrent);
