@@ -58,7 +58,7 @@ public class Parser {
 			pieces = new Piece[lines.size()][lines.get(0).length()];
 			for (int line = 0; line < lines.size(); line++) {
 				int tempColor = Piece.getColor(lines.get(line).charAt(0), parrent);
-				if (tempColor != 0) {
+				if (tempColor != 0 || lines.get(line).charAt(0) == ' ') {
 					listPieces.add(new ArrayList<Piece>());
 					for (int pos = 0; pos < lines.get(line).length(); pos++) {
 						if (pos > pieces[0].length) {
