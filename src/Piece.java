@@ -27,7 +27,6 @@ public class Piece {
 	
 	public void setDisplayPos(PVector newPos) {
 		this.newPos = newPos;
-		System.out.println("UPDATE POS " + (displayPos.x - this.newPos.x) + " " +  (displayPos.y - newPos.y));
 	}
 	
 	public void setRadius(float newRadius) {
@@ -119,7 +118,7 @@ public class Piece {
 				if (!(dRow == 0 && dCol == 0) && pos[0] + dRow >= 0 && pos[0] + dRow < directions.length && pos[1] + dCol >= 0 && pos[1] + dCol < directions[0].length) {
 					int[] directionPos = PlayingField.createPos(pos[0] + dRow, pos[1] + dCol);
 					int[] newPos = directions[pos[0] + dRow][pos[1] + dCol].getNewPos(directionPos, pos);
-					if (newPos != null && grid.getPiece(newPos[0], newPos[1]) != null && !grid.getPiece(newPos[0], newPos[1]).isActive()) {
+					if (newPos != null && isValidMove(newPos[0], newPos[1])) {
 						possibleMoves.add(newPos);
 					}
 				}
@@ -190,14 +189,6 @@ public class Piece {
 				multiplyer += 1;
 			}
 		}
-	}
-	
-	private void pullCapture(int newX, int newY) {
-		
-	}
-	
-	private void pushCapture(int newX, int newY) {
-		
 	}
 	
 	@Override
