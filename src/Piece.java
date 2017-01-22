@@ -19,6 +19,7 @@ public class Piece {
 	private int[] lastDirection;
 	private boolean requireConferm;
 	private Piece[] canConfermWith;
+	private boolean confermOption;
 	
 	public Piece(PApplet parrent, int color, int[] pos, PlayingField grid) {
 		this.parrent = parrent;
@@ -33,6 +34,7 @@ public class Piece {
 		lastDirection = null;
 		requireConferm = false;
 		canConfermWith = new Piece[2];
+		confermOption = false;
 	}
 	
 	public void setDisplayPos(PVector newPos) {
@@ -72,6 +74,17 @@ public class Piece {
 				parrent.fill(color);
 				parrent.noStroke();
 				parrent.ellipse(displayPos.x, displayPos.y, radius/2, radius/2);
+			}
+			if (confermOption) {
+				int color = (getColor('W', parrent) == this.color) ? getColor('B', parrent) : getColor('W', parrent);
+				parrent.fill(color);
+				parrent.textSize(32);
+				float textWidth = parrent.textWidth("?");
+				float textHeight = parrent.textAscent();
+				float x = (displayPos.x - radius) + ((radius * 2) - textWidth)/2;
+				float y = (displayPos.y + radius) - ((radius * 2) - textHeight)/2;
+				parrent.text("?", x, y);
+
 			}
 			if ((displayPos.x - newPos.x < -3 || displayPos.x - newPos.x > 3) || displayPos.y - newPos.y < -3 || displayPos.y - newPos.y > 3) {
 				displayPos.add(PVector.sub(newPos, displayPos).normalize().mult(6));
@@ -241,6 +254,8 @@ public class Piece {
 			requireConferm = true;
 			canConfermWith[0] = grid.getCorospondingPiece(pullPiece);
 			canConfermWith[1] = grid.getCorospondingPiece(pushPiece);
+			canConfermWith[0].confermOption = true;
+			canConfermWith[1].confermOption = true;
 		}
 	}
 	
@@ -261,6 +276,8 @@ public class Piece {
 				multiplyer += 1;
 			}
 			requireConferm = false;
+			canConfermWith[0].confermOption = false;
+			canConfermWith[1].confermOption = false;
 			canConfermWith = new Piece[2];
 		}
 	}
