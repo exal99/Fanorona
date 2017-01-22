@@ -1,4 +1,5 @@
 import java.text.ParseException;
+import java.util.ArrayList;
 
 import processing.core.PApplet;
 import processing.core.PVector;
@@ -106,6 +107,8 @@ public class PlayingField {
 				current.draw();
 			}
 		}
+		
+		setPossibleSelect();
 	}
 	
 	public boolean mustBeCapture() {
@@ -162,6 +165,42 @@ public class PlayingField {
 		}
 	}
 	
+	public void setPossibleSelect() {
+		if (lastMoved == null) {
+			ArrayList<Piece> all = new ArrayList<Piece>();
+			ArrayList<Piece> capture = new ArrayList<Piece>();
+			for (Piece[] row : pieceGrid) {
+				for (Piece p : row) {
+					if (p.getColor() == currentPlayer && p.isActive()) {
+						if (p.canCapture()) {
+							capture.add(p);
+						} else {
+							all.add(p);
+						}
+					}
+					p.setCanSelect(false);
+				}
+			}
+			if (capture.size() > 0) {
+				for (Piece p : capture) {
+					p.setCanSelect(true);
+				}
+			} else {
+				for (Piece p: all) {
+					p.setCanSelect(true);
+				}
+			}
+		} else {
+			for (Piece[] row : pieceGrid) {
+				for (Piece p : row) {
+					if (p != lastMoved) {
+						p.setCanSelect(false);
+					}
+				}
+			}
+		}
+	}
+	
 	public void dissablePiece(int row, int col) {
 		pieceGrid[row][col].setActive(false);
 	}
@@ -173,7 +212,6 @@ public class PlayingField {
 	private void makeMove(Piece toMoveTo) {
 		if (selected.canMoveTo(toMoveTo)) {
 			if (mustBeCapture()) {
-				System.out.println("MUST CAPTURE");
 				if (selected.isCaptureMove(toMoveTo)) {
 					move(selected, toMoveTo);
 				}

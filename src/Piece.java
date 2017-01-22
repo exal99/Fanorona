@@ -14,6 +14,7 @@ public class Piece {
 	private boolean active;
 	private boolean selected;
 	private PlayingField grid;
+	private boolean canBeSelected;
 	
 	public Piece(PApplet parrent, int color, int[] pos, PlayingField grid) {
 		this.parrent = parrent;
@@ -23,6 +24,7 @@ public class Piece {
 		active 		 = true;
 		displayPos   = new PVector(0,0);
 		selected     = false;
+		canBeSelected = false;
 	}
 	
 	public void setDisplayPos(PVector newPos) {
@@ -40,6 +42,10 @@ public class Piece {
 		active = newActive;
 	}
 	
+	public void setCanSelect(boolean newVal) {
+		canBeSelected = newVal;
+	}
+	
 	public void draw() {
 		if (active) {
 			parrent.fill(color);
@@ -49,6 +55,12 @@ public class Piece {
 				parrent.stroke(255 - parrent.brightness(color));
 			}
 			parrent.ellipse(displayPos.x, displayPos.y, radius * 2, radius * 2);
+			if (canBeSelected) {
+				int color = (getColor('W', parrent) == this.color) ? getColor('B', parrent) : getColor('W', parrent);
+				parrent.fill(color);
+				parrent.noStroke();
+				parrent.ellipse(displayPos.x, displayPos.y, radius/2, radius/2);
+			}
 			if ((displayPos.x - newPos.x < -3 || displayPos.x - newPos.x > 3) || displayPos.y - newPos.y < -3 || displayPos.y - newPos.y > 3) {
 				displayPos.add(PVector.sub(newPos, displayPos).normalize().mult(6));
 			} else if (displayPos.x != newPos.x || displayPos.y != newPos.y) {
@@ -137,7 +149,8 @@ public class Piece {
 	
 	private boolean isValidMove(int newX, int newY) {
 		int[] direction = {newX - pos[0], newY - pos[1]};
-		if (grid.getDirections()[pos[0] + direction[0] / 2][pos[1] + direction[1] / 2].validMove(PlayingField.createPos(pos[0] + direction[0] / 2,pos[1] + direction[1] / 2), pos)) {
+		if (grid.getDirections()[pos[0] + direction[0] / 2][pos[1] + direction[1] / 2].validMove(PlayingField.createPos(pos[0] + direction[0] / 2,pos[1] + direction[1] / 2), pos) &&
+			!grid.getActualPieceGrid()[newX][newY].isActive()) {
 			return true;
 		} else {
 			return false;
