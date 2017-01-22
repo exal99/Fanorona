@@ -21,6 +21,7 @@ public class PlayingField {
 	private boolean moved;
 	private boolean mustConferm;
 	private Piece toConfermTo;
+	private ArrayList<int[]> walkedAlong;
 	
 	public PlayingField(PApplet parrent) {
 		this.parrent = parrent;
@@ -36,6 +37,7 @@ public class PlayingField {
 			selected = null;
 			currentPlayer = Piece.getColor('W', parrent);
 			moved = false;
+			walkedAlong = new ArrayList<int[]>();
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -147,8 +149,7 @@ public class PlayingField {
 					if (!mustConferm) {
 						toConfermTo = null;
 					} if (!selected.canCapture()) {
-						lastMoved = null;
-						currentPlayer = (currentPlayer == Piece.getColor('W', parrent)) ? Piece.getColor('B', parrent) : Piece.getColor('W', parrent);
+						nextTurn();
 					}
 				}
 			}
@@ -227,10 +228,8 @@ public class PlayingField {
 					move(selected, toMoveTo);
 				}
 			} else {
-				int currPlayer = currentPlayer;
 				move(selected, toMoveTo);
-				currentPlayer = (currPlayer == Piece.getColor('W', parrent)) ? Piece.getColor('B', parrent) : Piece.getColor('W', parrent);
-				lastMoved = null;
+				nextTurn();
 			}
 		}
 	}
@@ -252,6 +251,9 @@ public class PlayingField {
 		int[] tActualPos = to.getPos();
 		int[] fPos = actualPieceGrid[fActualPos[0]][fActualPos[1]].getPos();
 		int[] tPos = actualPieceGrid[tActualPos[0]][tActualPos[1]].getPos();
+		int[] direction = {(tActualPos[0] - fActualPos[0])/2, (tActualPos[1] - fActualPos[1])/2};
+		int[] linePos = {fActualPos[0] + direction[0], fActualPos[1] + direction[1]};
+		walkedAlong.add(linePos);
 		pieceGrid[fPos[0]][fPos[1]] = to;
 		pieceGrid[tPos[0]][tPos[1]] = from;
 		to.setPos(fActualPos);
@@ -268,15 +270,42 @@ public class PlayingField {
 		} if (mustConferm) {
 			toConfermTo = from;
 		} if (!from.canCapture() && !mustConferm) {
-			lastMoved = null;
-			currentPlayer = (currentPlayer == Piece.getColor('W', parrent)) ? Piece.getColor('B', parrent) : Piece.getColor('W', parrent);
+			nextTurn();
 		}
+	}
+	
+	private boolean containsPos(int[] pos) {
+		for (int[] p : walkedAlong) {
+			if (p[0] == pos[0] && p[1] == pos[1]) {
+				return true;
+			}
+		}
+		 return false;
+	}
+	
+	private void nextTurn() {
+		lastMoved = null;
+		currentPlayer = (currentPlayer == Piece.getColor('W', parrent)) ? Piece.getColor('B', parrent) : Piece.getColor('W', parrent);
+		for (Piece[] row : pieceGrid) {
+			for (Piece p : row) {
+				p.resetMovement();
+			}
+		}
+		
+		for (Piece[] row : actualPieceGrid) {
+			for (Piece p : row) {
+				if (p != null) {
+					p.resetMovement();
+				}
+			}
+		}
+		walkedAlong.clear();
 	}
 	
 	private void drawLine(MoveDirection direction, int[] pos) {
 		int[] xyDelta = direction.getDelta();
 		parrent.strokeWeight(3);
-		parrent.stroke(100);
+		parrent.stroke(containsPos(pos) ? parrent.color(255, 0, 0) : 100);
 		Piece from = actualPieceGrid[pos[0] - xyDelta[0]][pos[1] - xyDelta[1]];
 		Piece to   = actualPieceGrid[pos[0] + xyDelta[0]][pos[1] + xyDelta[1]];
 		parrent.line(from.getDisplayPos().x, from.getDisplayPos().y, to.getDisplayPos().x, to.getDisplayPos().y);
