@@ -260,16 +260,6 @@ public class Piece {
 				currPiece = grid.getCorospondingPiece(grid.getPiece(newX + multiplyer * direction[0], newY + multiplyer * direction[1]));
 				multiplyer += 1;
 			}
-//			} else {
-//				Piece currPiece = p;
-//				int multiplyer = 1;
-//				while(currPiece != null && currPiece.isActive() && currPiece.color != color) {
-//					grid.getPiece(currPiece.getPos()[0], currPiece.getPos()[1]).setActive(false);
-//					currPiece.setActive(false);
-//					currPiece = grid.getPiece(pos[0] - multiplyer * direction[0], pos[1] - multiplyer * direction[1]);
-//					multiplyer += 1;
-//				}
-//			}
 			requireConferm = false;
 			canConfermWith = new Piece[2];
 		}

@@ -146,6 +146,9 @@ public class PlayingField {
 					mustConferm = toConfermTo.requiresConfermation();
 					if (!mustConferm) {
 						toConfermTo = null;
+					} if (!selected.canCapture()) {
+						lastMoved = null;
+						currentPlayer = (currentPlayer == Piece.getColor('W', parrent)) ? Piece.getColor('B', parrent) : Piece.getColor('W', parrent);
 					}
 				}
 			}
@@ -258,14 +261,13 @@ public class PlayingField {
 		actualPieceGrid[tActualPos[0]][tActualPos[1]] = temp;
 		actualPieceGrid[fActualPos[0]][fActualPos[1]].setPos(fPos);
 		temp.setPos(tPos);
+		mustConferm = from.requiresConfermation();
 		moved = true;
 		if (from.canCapture()) {
 			lastMoved = from;
-			mustConferm = from.requiresConfermation();
-			if (mustConferm) {
-				toConfermTo = from;
-			}
-		} else {
+		} if (mustConferm) {
+			toConfermTo = from;
+		} if (!from.canCapture() && !mustConferm) {
 			lastMoved = null;
 			currentPlayer = (currentPlayer == Piece.getColor('W', parrent)) ? Piece.getColor('B', parrent) : Piece.getColor('W', parrent);
 		}
