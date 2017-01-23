@@ -228,8 +228,11 @@ public class PlayingField {
 					move(selected, toMoveTo);
 				}
 			} else {
+				int tempPlayer = currentPlayer;
 				move(selected, toMoveTo);
-				nextTurn();
+				if (tempPlayer == currentPlayer) {
+					nextTurn();
+				}
 			}
 		}
 	}
