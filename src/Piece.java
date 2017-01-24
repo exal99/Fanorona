@@ -64,6 +64,7 @@ public class Piece {
 		if (active) {
 			parrent.fill(color);
 			parrent.noStroke();
+			float moveSpeed = PApplet.dist(0, 0, parrent.width, parrent.height)/140;
 			if (selected) {
 				parrent.strokeWeight(5);
 				parrent.stroke(255 - parrent.brightness(color));
@@ -78,16 +79,23 @@ public class Piece {
 			if (confermOption) {
 				int color = (getColor('W', parrent) == this.color) ? getColor('B', parrent) : getColor('W', parrent);
 				parrent.fill(color);
-				parrent.textSize(32);
+				parrent.textSize(12);
+				
+				float textHeight = parrent.textAscent() + parrent.textDescent();
+				float percentOfHeight = textHeight/((radius * 2) * 0.9f);
+				parrent.textSize(12 * 1/percentOfHeight);
 				float textWidth = parrent.textWidth("?");
-				float textHeight = parrent.textAscent();
 				float x = (displayPos.x - radius) + ((radius * 2) - textWidth)/2;
-				float y = (displayPos.y + radius) - ((radius * 2) - textHeight)/2;
+				float y = (displayPos.y - radius) + ((radius * 2) - (parrent.textAscent() + parrent.textDescent()))/2 + parrent.textAscent();
 				parrent.text("?", x, y);
 
 			}
-			if ((displayPos.x - newPos.x < -3 || displayPos.x - newPos.x > 3) || displayPos.y - newPos.y < -3 || displayPos.y - newPos.y > 3) {
-				displayPos.add(PVector.sub(newPos, displayPos).normalize().mult(6));
+			if ((displayPos.x - newPos.x < -moveSpeed/2 || displayPos.x - newPos.x > moveSpeed/2) ||
+				 displayPos.y - newPos.y < -moveSpeed/2 || displayPos.y - newPos.y > moveSpeed/2) {
+				PVector vect = PVector.sub(newPos, displayPos);
+				vect.normalize();
+				vect.mult(moveSpeed);
+				displayPos.add(vect);
 			} else if (displayPos.x != newPos.x || displayPos.y != newPos.y) {
 				displayPos.x = newPos.x;
 				displayPos.y = newPos.y;
@@ -100,7 +108,7 @@ public class Piece {
 				parrent.stroke(255 - parrent.brightness(color));
 			}
 			parrent.ellipse(displayPos.x, displayPos.y, decreesingRadius * 2, decreesingRadius * 2);
-			decreesingRadius -= 4;
+			decreesingRadius -= radius * 0.15;
 		}
 	}
 	
