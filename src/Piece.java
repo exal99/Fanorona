@@ -64,9 +64,9 @@ public class Piece {
 		if (active) {
 			parrent.fill(color);
 			parrent.noStroke();
-			float moveSpeed = PApplet.dist(0, 0, parrent.width, parrent.height)/140;
+			float moveSpeed = PApplet.dist(0, 0, parrent.width, parrent.height)/2.5f * 1/parrent.frameRate;
 			if (selected) {
-				parrent.strokeWeight(5);
+				parrent.strokeWeight(PApplet.dist(0, 0, parrent.width, parrent.height)/150);
 				parrent.stroke(255 - parrent.brightness(color));
 			}
 			parrent.ellipse(displayPos.x, displayPos.y, radius * 2, radius * 2);
@@ -104,7 +104,7 @@ public class Piece {
 			parrent.fill(color);
 			parrent.noStroke();
 			if (selected) {
-				parrent.strokeWeight(5);
+				parrent.strokeWeight(PApplet.dist(0, 0, parrent.width, parrent.height)/150);
 				parrent.stroke(255 - parrent.brightness(color));
 			}
 			parrent.ellipse(displayPos.x, displayPos.y, decreesingRadius * 2, decreesingRadius * 2);
