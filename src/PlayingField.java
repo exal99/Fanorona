@@ -23,12 +23,12 @@ public class PlayingField {
 	private Piece toConfermTo;
 	private ArrayList<int[]> walkedAlong;
 	
-	public PlayingField(PApplet parrent) {
+	public PlayingField(PApplet parrent, String board) {
 		this.parrent = parrent;
 		try {
 
-			directionsGrid = Parser.parseDirection(System.getProperty("user.dir") + "\\data\\board.txt");
-			pieceGrid = Parser.parsePieces(System.getProperty("user.dir") + "\\data\\board.txt", parrent, this);
+			directionsGrid = Parser.parseDirection(System.getProperty("user.dir") + "\\data\\" + board);
+			pieceGrid = Parser.parsePieces(System.getProperty("user.dir") + "\\data\\" + board, parrent, this);
 			actualPieceGrid = new Piece[directionsGrid.length][directionsGrid[0].length];
 			populatePieceGrid();
 			lastWidth = 0;
@@ -44,6 +44,20 @@ public class PlayingField {
 			System.exit(-1);
 		}
 		
+	}
+	
+	public int isVictory() {
+		Piece found = null;
+		for (Piece[] row : pieceGrid) {
+			for (Piece p : row) {
+				if (found == null && p.isActive()) {
+					found = p;
+				} else if (p.isActive() && p.getColor() != found.getColor()) {
+					return 0;
+				}
+			}
+		}
+		return found.getColor();
 	}
 	
 	private void populatePieceGrid() {
@@ -113,6 +127,14 @@ public class PlayingField {
 		}
 		
 		setPossibleSelect();
+		int victory = isVictory();
+		if (victory != 0) {
+			String winner = (victory == Piece.getColor('W', parrent)) ? "White" : "Black";
+			float size = 0.04f * PApplet.dist(0, 0, parrent.width, parrent.height);
+			parrent.textSize(size);
+			parrent.text(winner + " is victorius", size/4, size);
+			System.out.println(size/PApplet.dist(0, 0, parrent.width, parrent.height));
+		}
 	}
 	
 	public boolean mustBeCapture() {
