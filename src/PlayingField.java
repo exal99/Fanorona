@@ -133,7 +133,6 @@ public class PlayingField {
 			float size = 0.04f * PApplet.dist(0, 0, parrent.width, parrent.height);
 			parrent.textSize(size);
 			parrent.text(winner + " is victorius", size/4, size);
-			System.out.println(size/PApplet.dist(0, 0, parrent.width, parrent.height));
 		}
 	}
 	
