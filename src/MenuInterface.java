@@ -44,8 +44,7 @@ public class MenuInterface extends ControlP5 {
 							e.printStackTrace();
 						}
 						break;
-					}
-					
+					}	
 				}
 			});
 			this.buttons.add(b);
@@ -78,6 +77,13 @@ public class MenuInterface extends ControlP5 {
 				parrent.textSize(12);
 				float textHeight = parrent.textAscent() + parrent.textDescent();
 				float percent = textHeight/(buttonHeight * 0.5f);
+				parrent.textSize(12 * 1/percent);
+				float textWidth = parrent.textWidth(b.getLabel());
+				if (textWidth > buttonWidth * 0.9) {
+					parrent.textSize(12);
+					textWidth = parrent.textWidth(b.getLabel());
+					percent = textWidth/(buttonWidth * 0.9f);
+				}
 				PFont font = parrent.createFont("cour.ttf", 12 * 1/percent, true);
 				b.setFont(new ControlFont(font));
 			}
