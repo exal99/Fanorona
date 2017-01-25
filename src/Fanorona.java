@@ -1,7 +1,15 @@
+import java.util.LinkedHashMap;
+import java.util.concurrent.Callable;
+
 import processing.core.PApplet;
+import processing.core.PFont;
 
 public class Fanorona extends PApplet {
+	private enum Screen {MAIN, DIFFICULITY, GAME};
 	private PlayingField p;
+	private MenuInterface mainMenu;
+	private MenuInterface difficultSelection;
+	private Screen currScreen;
 	
 	public void settings() {
 		size(800,600);
@@ -9,17 +17,122 @@ public class Fanorona extends PApplet {
 	
 	public void setup() {
 		fill(255);
-		p = new PlayingField(this);
+		makeMainMenu();
+		makeDifficulityMenu();
 		surface.setResizable(true);
+		currScreen = Screen.MAIN;
+		PFont font = createFont("cour.ttf", 12);
+		textFont(font);
+	}
+	
+	private void makeDifficulityMenu() {
+		LinkedHashMap<String, Callable<Object>> menu = new LinkedHashMap<String, Callable<Object>>();
+		menu.put("Normal", new Callable<Object>() {
+
+			@Override
+			public Object call() throws Exception {
+				startGame("normal.txt");
+				return null;
+			}
+			
+		});
+		
+		menu.put("Easy", new Callable<Object>() {
+
+			@Override
+			public Object call() throws Exception {
+				startGame("easy.txt");
+				return null;
+			}
+			
+		});
+		
+		menu.put("Can I Play Daddy?", new Callable<Object>() {
+
+			@Override
+			public Object call() throws Exception {
+				startGame("super_easy.txt");
+				return null;
+			}
+			
+		});
+		
+		menu.put("Back", new Callable<Object>() {
+			
+			@Override
+			public Object call() throws Exception {
+				back();
+				return null;
+			}
+		});
+		
+		difficultSelection = new MenuInterface(this, menu);
+	}
+	
+	private void startGame(String board) {
+		currScreen = Screen.GAME;
+		p = new PlayingField(this, board);
+	}
+
+	private void makeMainMenu() {
+		LinkedHashMap<String, Callable<Object>> menu = new LinkedHashMap<String, Callable<Object>>();
+		menu.put("Start", new Callable<Object>() {
+
+			@Override
+			public Object call() throws Exception {
+				currScreen = Screen.DIFFICULITY;
+				return null;
+			}
+		});
+		menu.put("Quit", new Callable<Object>() {
+			
+			@Override
+			public Object call() throws Exception {
+				back();
+				return null;
+			}
+		});
+		mainMenu = new MenuInterface(this, menu);
 	}
 	
 	public void draw() {
 		background(0,0,255);
-		p.draw();
+		switch (currScreen) {
+		case MAIN:
+			mainMenu.draw();
+			break;
+		case DIFFICULITY:
+			difficultSelection.draw();
+			break;
+		case GAME:
+			p.draw();
+		}
 	}
 	
 	public void mousePressed() {
-		p.mousePressed(mouseX, mouseY);
+		if (currScreen == Screen.GAME) {
+			p.mousePressed(mouseX, mouseY);
+		}
+	}
+	
+	public void keyPressed() {
+		if (key == 'b') {
+			back();
+		}
+	}
+	
+	private void back() {
+		switch (currScreen) {
+		case DIFFICULITY:
+			currScreen = Screen.MAIN;
+			break;
+		case GAME:
+			currScreen = Screen.DIFFICULITY;
+			break;
+		case MAIN:
+			exit();
+			break;
+		}
 	}
 
 	public static void main(String[] args) {
