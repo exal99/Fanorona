@@ -96,7 +96,7 @@ public class Fanorona extends PApplet {
 	}
 	
 	public void draw() {
-		background(0,0,255);
+		background(255,159,2);
 		switch (currScreen) {
 		case MAIN:
 			mainMenu.draw();
