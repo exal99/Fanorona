@@ -16,6 +16,9 @@ public class MenuInterface extends ControlP5 {
 	private PApplet parrent;
 	private float lastWidth;
 	private float lastHeight;
+	private float yPadding;
+	private float buttonHeightMultiplyer;
+	private float yPaddingScale;
 
 	public MenuInterface(PApplet parrent, Map<String, Callable<Object>> buttons) {
 		super(parrent);
@@ -23,7 +26,25 @@ public class MenuInterface extends ControlP5 {
 		setAutoDraw(false);
 		this.parrent = parrent;
 		createButtons(buttons);
+		buttonHeightMultiplyer = 0.4f;
+		yPaddingScale = 1;
+		yPadding = calcYPadding();
 		onResize();
+	}
+	
+	
+	public void setButtonHeightScale(float newPadding) {
+		buttonHeightMultiplyer = newPadding;
+		onResize();
+	}
+	
+	public void setYPaddingScale(float newScale) {
+		yPaddingScale = newScale;
+		onResize();
+	}
+	
+	private float calcYPadding() {
+		return lastHeight / buttons.size() * (1 - buttonHeightMultiplyer)/2 * yPaddingScale;
 	}
 	
 	private void createButtons(Map<String, Callable<Object>> buttons) {
@@ -64,9 +85,9 @@ public class MenuInterface extends ControlP5 {
 	
 	private void onResize() {
 		int numButtons = buttons.size();
-		float buttonHeight = lastHeight / numButtons * 0.4f;
+		float buttonHeight = lastHeight / numButtons * buttonHeightMultiplyer;
 		float buttonWidth = lastWidth * 0.3f;
-		float yPadding = lastHeight / numButtons * 0.30f;
+		yPadding = calcYPadding();
 		float yOffset = (lastHeight - ((numButtons) * (buttonHeight) + (numButtons - 1) * yPadding))/2;
 		for (int i = 0; i < numButtons; i ++) {
 			Button b = buttons.get(i);
