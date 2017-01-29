@@ -120,6 +120,8 @@ public class Fanorona extends PApplet {
 	public void keyPressed() {
 		if (key == 'b') {
 			back();
+		} if (key == 's') {
+			saveFrame("frame.png");
 		}
 	}
 	
