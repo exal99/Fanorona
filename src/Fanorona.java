@@ -5,10 +5,11 @@ import processing.core.PApplet;
 import processing.core.PFont;
 
 public class Fanorona extends PApplet {
-	private enum Screen {MAIN, DIFFICULITY, GAME};
+	private enum Screen {MAIN, DIFFICULITY, GAME_TYPE, GAME};
 	private PlayingField p;
 	private MenuInterface mainMenu;
 	private MenuInterface difficultSelection;
+	private MenuInterface gameSpeed;
 	private Screen currScreen;
 	
 	public void settings() {
@@ -31,7 +32,9 @@ public class Fanorona extends PApplet {
 
 			@Override
 			public Object call() throws Exception {
-				startGame("super_easy.txt");
+				//startGame("super_easy.txt");
+				gameSpeed = createTypeSelection("super_easy.txt");
+				currScreen = Screen.GAME_TYPE;
 				return null;
 			}
 
@@ -41,7 +44,9 @@ public class Fanorona extends PApplet {
 
 			@Override
 			public Object call() throws Exception {
-				startGame("easy.txt");
+				//startGame("easy.txt");
+				gameSpeed = createTypeSelection("easy.txt");
+				currScreen = Screen.GAME_TYPE;
 				return null;
 			}
 
@@ -51,7 +56,9 @@ public class Fanorona extends PApplet {
 
 			@Override
 			public Object call() throws Exception {
-				startGame("normal.txt");
+				//startGame("normal.txt");
+				gameSpeed = createTypeSelection("normal.txt");
+				currScreen = Screen.GAME_TYPE;
 				return null;
 			}
 
@@ -71,9 +78,51 @@ public class Fanorona extends PApplet {
 		difficultSelection.setYPaddingScale(1.7f);
 	}
 	
-	private void startGame(String board) {
+	private MenuInterface createTypeSelection(String board) {
+		LinkedHashMap<String, Callable<Object>> menu = new LinkedHashMap<String, Callable<Object>>();
+		menu.put("Normal", new Callable<Object>() {
+
+			@Override
+			public Object call() throws Exception {
+				startGame(board, false);
+				return null;
+			}
+
+		});
+
+		menu.put("Blitz Mode", new Callable<Object>() {
+
+			@Override
+			public Object call() throws Exception {
+				startGame(board, true);
+				return null;
+			}
+
+		});
+
+
+		menu.put("Back", new Callable<Object>() {
+
+			@Override
+			public Object call() throws Exception {
+				back();
+				return null;
+			}
+		});
+		
+		return new MenuInterface(this, menu);
+
+	}
+	
+	private void startGame(String board, boolean blitz) {
 		currScreen = Screen.GAME;
-		p = new PlayingField(this, board);
+		if (!blitz) {
+			p = new PlayingField(this, board);
+		} else {
+			int[] whiteTimes = {3, 0, 0};
+			int[] blackTimes = {3, 0, 0};
+			p = new PlayingField(this, board, whiteTimes, blackTimes);
+		}
 	}
 
 	private void makeMainMenu() {
@@ -106,8 +155,12 @@ public class Fanorona extends PApplet {
 		case DIFFICULITY:
 			difficultSelection.draw();
 			break;
+		case GAME_TYPE:
+			gameSpeed.draw();
+			break;
 		case GAME:
 			p.draw();
+			break;
 		}
 	}
 	
@@ -131,6 +184,9 @@ public class Fanorona extends PApplet {
 			currScreen = Screen.MAIN;
 			break;
 		case GAME:
+			currScreen = Screen.DIFFICULITY;
+			break;
+		case GAME_TYPE:
 			currScreen = Screen.DIFFICULITY;
 			break;
 		case MAIN:
