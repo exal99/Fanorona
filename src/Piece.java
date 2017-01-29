@@ -163,6 +163,10 @@ public class Piece {
 		return false;
 	}
 	
+	public boolean canMove() {
+		return getAllPossibleMoves().size() > 0;
+	}
+	
 	private ArrayList<int[]> getAllPossibleMoves() {
 		MoveDirection[][] directions = grid.getDirections();
 		ArrayList<int[]> possibleMoves = new ArrayList<int[]>();

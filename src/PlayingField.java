@@ -207,7 +207,7 @@ public class PlayingField {
 					if (p.getColor() == currentPlayer && p.isActive()) {
 						if (p.canCapture()) {
 							capture.add(p);
-						} else {
+						} else if (p.canMove()) {
 							all.add(p);
 						}
 					}
@@ -329,6 +329,7 @@ public class PlayingField {
 	private void drawLine(MoveDirection direction, int[] pos) {
 		int[] xyDelta = direction.getDelta();
 		parrent.strokeWeight(3);
+		System.out.println(PApplet.dist(0, 0, parrent.width, parrent.height)/3);
 		parrent.stroke(containsPos(pos) ? parrent.color(255, 0, 0) : 100);
 		Piece from = actualPieceGrid[pos[0] - xyDelta[0]][pos[1] - xyDelta[1]];
 		Piece to   = actualPieceGrid[pos[0] + xyDelta[0]][pos[1] + xyDelta[1]];
