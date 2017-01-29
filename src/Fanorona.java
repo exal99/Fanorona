@@ -5,11 +5,12 @@ import processing.core.PApplet;
 import processing.core.PFont;
 
 public class Fanorona extends PApplet {
-	private enum Screen {MAIN, DIFFICULITY, GAME_TYPE, GAME};
+	private enum Screen {MAIN, DIFFICULITY, GAME_TYPE, GAME, GAME_OVER};
 	private PlayingField p;
 	private MenuInterface mainMenu;
 	private MenuInterface difficultSelection;
 	private MenuInterface gameSpeed;
+	private ConfermMenuInterface gameOver;
 	private Screen currScreen;
 	
 	public void settings() {
@@ -161,6 +162,10 @@ public class Fanorona extends PApplet {
 		case GAME:
 			p.draw();
 			break;
+		case GAME_OVER:
+			gameOver.draw();
+			break;
+
 		}
 	}
 	
@@ -189,10 +194,35 @@ public class Fanorona extends PApplet {
 		case GAME_TYPE:
 			currScreen = Screen.DIFFICULITY;
 			break;
+		case GAME_OVER:
+			currScreen = Screen.DIFFICULITY;
+			break;
 		case MAIN:
 			exit();
 			break;
 		}
+	}
+	
+	public void showGameOver(String message, float rotation, String board, boolean blitz) {
+		LinkedHashMap<String, Callable<Object>> menu = new LinkedHashMap<String, Callable<Object>>();
+		menu.put("Rematch!", new Callable<Object>() {
+
+			@Override
+			public Object call() throws Exception {
+				startGame(board, blitz);
+				return null;
+			}
+		});
+		menu.put("Main Menu", new Callable<Object>() {
+			
+			@Override
+			public Object call() throws Exception {
+				back();
+				return null;
+			}
+		});
+		gameOver = new ConfermMenuInterface(this, menu, message, rotation);
+		currScreen = Screen.GAME_OVER;
 	}
 
 	public static void main(String[] args) {

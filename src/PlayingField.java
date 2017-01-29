@@ -5,7 +5,7 @@ import processing.core.PApplet;
 import processing.core.PVector;
 
 public class PlayingField {
-	private PApplet parrent;
+	private Fanorona parrent;
 	private MoveDirection[][] directionsGrid;
 	private Piece[][] pieceGrid;
 	private Piece[][] actualPieceGrid;
@@ -28,12 +28,16 @@ public class PlayingField {
 	private float timerHeight;
 	private float timerHeightPercent;
 	
-	public PlayingField(PApplet parrent, String board) {
+	private String boardName;
+	private boolean blitz;
+	
+	public PlayingField(Fanorona parrent, String board) {
 		this.parrent = parrent;
+		boardName = board;
 		try {
 
-			directionsGrid = Parser.parseDirection(System.getProperty("user.dir") + "\\data\\" + board);
-			pieceGrid = Parser.parsePieces(System.getProperty("user.dir") + "\\data\\" + board, parrent, this);
+			directionsGrid = Parser.parseDirection(System.getProperty("user.dir") + "\\data\\" + boardName);
+			pieceGrid = Parser.parsePieces(System.getProperty("user.dir") + "\\data\\" + boardName, parrent, this);
 			actualPieceGrid = new Piece[directionsGrid.length][directionsGrid[0].length];
 			populatePieceGrid();
 			lastWidth = 0;
@@ -47,6 +51,7 @@ public class PlayingField {
 			timerHeight = parrent.height * timerHeightPercent;
 			whiteTimer = null;
 			blackTimer = null;
+			blitz = false;
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -55,12 +60,13 @@ public class PlayingField {
 		
 	}
 	
-	public PlayingField(PApplet parrent, String board, int[] whiteTime, int[] blackTime) {
+	public PlayingField(Fanorona parrent, String board, int[] whiteTime, int[] blackTime) {
 		this(parrent, board);
 		whiteTimer = new Timer(whiteTime[0], whiteTime[1], whiteTime[2]);
 		blackTimer = new Timer(blackTime[0], blackTime[1], blackTime[2]);
 		timerHeightPercent = 0.1f;
 		timerHeight = parrent.height * timerHeightPercent;
+		blitz = true;
 	}
 	
 	public int isVictory() {
@@ -159,9 +165,13 @@ public class PlayingField {
 		int victory = isVictory();
 		if (victory != 0) {
 			String winner = (victory == Piece.getColor('W', parrent)) ? "White" : "Black";
-			float size = 0.04f * PApplet.dist(0, 0, parrent.width, parrent.height);
-			parrent.textSize(size);
-			parrent.text(winner + " is victorius", size/4, size);
+			switch (winner) {
+			case "White":
+				parrent.showGameOver("Sorry you lost but\nyou can challange your\noppnent to a rematch", PApplet.PI, boardName, blitz);
+				break;
+			case "Black":
+				parrent.showGameOver("Sorry you lost but\nyou can challange your\noppnent to a rematch", 0, boardName, blitz);
+			}
 		}
 		if (blackTimer != null && whiteTimer != null) {
 			blackTimer.updateTime();

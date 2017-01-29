@@ -12,13 +12,13 @@ import processing.core.PFont;
 
 public class MenuInterface extends ControlP5 {
 	
-	private ArrayList<Button> buttons;
-	private PApplet parrent;
-	private float lastWidth;
-	private float lastHeight;
-	private float yPadding;
-	private float buttonHeightMultiplyer;
-	private float yPaddingScale;
+	protected ArrayList<Button> buttons;
+	protected PApplet parrent;
+	protected float lastWidth;
+	protected float lastHeight;
+	protected float yPadding;
+	protected float buttonHeightMultiplyer;
+	protected float yPaddingScale;
 
 	public MenuInterface(PApplet parrent, Map<String, Callable<Object>> buttons) {
 		super(parrent);
@@ -83,7 +83,7 @@ public class MenuInterface extends ControlP5 {
 		super.draw();
 	}
 	
-	private void onResize() {
+	protected void onResize() {
 		int numButtons = buttons.size();
 		float buttonHeight = lastHeight / numButtons * buttonHeightMultiplyer;
 		float buttonWidth = lastWidth * 0.3f;
