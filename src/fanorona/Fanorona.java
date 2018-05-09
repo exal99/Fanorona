@@ -1,3 +1,4 @@
+package fanorona;
 import java.util.LinkedHashMap;
 import java.util.concurrent.Callable;
 
@@ -226,7 +227,7 @@ public class Fanorona extends PApplet {
 	}
 
 	public static void main(String[] args) {
-		PApplet.main("Fanorona");
+		PApplet.main("fanorona.Fanorona");
 	}
 
 }

@@ -1,62 +1,41 @@
+package fanorona;
 import java.text.ParseException;
 import java.util.ArrayList;
 
+import bases.FieldBase;
+import fanorona.Parser.GridPair;
 import processing.core.PApplet;
 import processing.core.PVector;
 
-public class PlayingField {
-	private Fanorona parrent;
-	private MoveDirection[][] directionsGrid;
-	private Piece[][] pieceGrid;
-	private Piece[][] actualPieceGrid;
-	private Piece selected;
-	private Piece lastMoved;
+public class PlayingField extends FieldBase<Piece, PlayingField>{
+	protected Fanorona parrent;
 	
-	private int currentPlayer;
+	protected int lastWidth;
+	protected int lastHeight;
+	protected float size;
 	
-	private int lastWidth;
-	private int lastHeight;
-	private float size;
+	protected Timer whiteTimer;
+	protected Timer blackTimer;
+	protected float timerHeight;
+	protected float timerHeightPercent;
 	
-	private boolean moved;
-	private boolean mustConferm;
-	private Piece toConfermTo;
-	private ArrayList<int[]> walkedAlong;
-	
-	private Timer whiteTimer;
-	private Timer blackTimer;
-	private float timerHeight;
-	private float timerHeightPercent;
-	
-	private String boardName;
-	private boolean blitz;
+	protected boolean blitz;
 	
 	public PlayingField(Fanorona parrent, String board) {
+		super(parrent, board);
 		this.parrent = parrent;
-		boardName = board;
-		try {
-
-			directionsGrid = Parser.parseDirection(System.getProperty("user.dir") + "\\data\\" + boardName);
-			pieceGrid = Parser.parsePieces(System.getProperty("user.dir") + "\\data\\" + boardName, parrent, this);
-			actualPieceGrid = new Piece[directionsGrid.length][directionsGrid[0].length];
-			populatePieceGrid();
-			lastWidth = 0;
-			lastHeight = 0;
-			size = 0;
-			selected = null;
-			currentPlayer = Piece.getColor('W', parrent);
-			moved = false;
-			walkedAlong = new ArrayList<int[]>();
-			timerHeightPercent = 0.05f;
-			timerHeight = parrent.height * timerHeightPercent;
-			whiteTimer = null;
-			blackTimer = null;
-			blitz = false;
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.exit(-1);
-		}
+		
+		pieceGrid = makePieceGrid();
+		populatePieceGrid();
+		lastWidth = 0;
+		lastHeight = 0;
+		size = 0;
+		timerHeightPercent = 0.05f;
+		timerHeight = parrent.height * timerHeightPercent;
+		whiteTimer = null;
+		blackTimer = null;
+		blitz = false;
+		
 		
 	}
 	
@@ -69,8 +48,31 @@ public class PlayingField {
 		blitz = true;
 	}
 	
+//	protected PlayingField(PlayingField field) {
+//		directionsGrid = field.directionsGrid;
+//		pieceGrid = field.pieceGrid;
+//		lastWidth = field.lastWidth;
+//		lastHeight = field.lastHeight;
+//		size = field.size;
+//		selected = field.selected;
+//		currentPlayer = field.currentPlayer;
+//		moved = field.moved;
+//		walkedAlong = field.walkedAlong;
+//		timerHeightPercent = field.timerHeightPercent;
+//		timerHeight = field.timerHeight;
+//		whiteTimer = field.whiteTimer;
+//		blackTimer = field.blackTimer;
+//		blitz = field.blitz;
+//		actualPieceGrid =  new Piece[directionsGrid.length][directionsGrid[0].length];
+//		for (int i = 0; i < field.actualPieceGrid.length; i++) {
+//			for (int j = 0; j < field.actualPieceGrid[i].length; j++) {
+//				actualPieceGrid[i][j] = field.actualPieceGrid[i][j].clone();
+//			}
+//		}
+//	}
+//	
+	@Override
 	public int isVictory() {
-		Piece found = null;
 		if (whiteTimer != null && blackTimer != null) {
 			if (whiteTimer.isDone()) {
 				return Piece.getColor('B', parrent);
@@ -78,51 +80,7 @@ public class PlayingField {
 				return Piece.getColor('W', parrent);
 			}
 		}
-		for (Piece[] row : pieceGrid) {
-			for (Piece p : row) {
-				if (found == null && p.isActive()) {
-					found = p;
-				} else if (p.isActive() && p.getColor() != found.getColor()) {
-					return 0;
-				}
-			}
-		}
-		return found.getColor();
-	}
-	
-	private void populatePieceGrid() {
-		int actualRow = -1;
-		int actualCol = 0;
-		for (int row = 0; row < directionsGrid.length; row++) {
-			boolean entireDirection = true;
-			actualCol = 0;
-			for (int col = 0; col < directionsGrid[0].length; col++) {
-				if (directionsGrid[row][col] == MoveDirection.CONNECTION) {
-					if (entireDirection) {
-						actualRow++;
-						entireDirection = false;
-					}
-					int[] pos = {actualRow, actualCol};
-					actualPieceGrid[row][col] = pieceGrid[actualRow][actualCol].clone();
-					actualPieceGrid[row][col].setPos(pos);
-					
-					actualCol++;
-				}
-			}
-		}
-	}
-	
-	public static int[] createPos(int a, int b) {
-		int[] r = {a, b};
-		return r;
-	}
-	
-	public MoveDirection[][] getDirections() {
-		return directionsGrid;
-	}
-	
-	public Piece[][] getActualPieceGrid() {
-		return actualPieceGrid;
+		return super.isVictory();
 	}
 	
 	public void draw() {
@@ -195,27 +153,6 @@ public class PlayingField {
 		parrent.popMatrix();
 	}
 	
-	public boolean mustBeCapture() {
-		for (Piece[] row : pieceGrid) {
-			for (Piece p : row) {
-				if (p.getColor() == currentPlayer && p.isActive()) {
-					if (p.canCapture()) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-	
-	public Piece getPiece(int row, int col) {
-		if (row >= 0 && row < actualPieceGrid.length && col >= 0 && col < actualPieceGrid[0].length) {
-			return actualPieceGrid[row][col];
-		} else {
-			return null;
-		}
-	}
-	
 	public void mousePressed(int mouseX, int mouseY) {
 		Piece found = null;
 		for (Piece[] row : pieceGrid) {
@@ -228,13 +165,13 @@ public class PlayingField {
 					if (!mustConferm) {
 						toConfermTo = null;
 					} if (!selected.canCapture()) {
-						nextTurn();
+						nextTurn(parrent);
 					}
 				}
 			}
 		}
 		if (selected != null && found != null && selected.getColor() == currentPlayer) {
-			makeMove(found);
+			makeMove(found, parrent);
 		}
 		if (lastMoved == null) {
 			selected = found;
@@ -296,96 +233,10 @@ public class PlayingField {
 		}
 	}
 	
-	public void dissablePiece(int row, int col) {
-		pieceGrid[row][col].setActive(false);
-	}
 	
-	public void dissablePiece(int[] pos) {
-		dissablePiece(pos[0], pos[1]);
-	}
-	
-	private void makeMove(Piece toMoveTo) {
-		if (selected.canMoveTo(toMoveTo) && !mustConferm) {
-			if (mustBeCapture()) {
-				if (selected.isCaptureMove(toMoveTo)) {
-					move(selected, toMoveTo);
-				}
-			} else {
-				int tempPlayer = currentPlayer;
-				move(selected, toMoveTo);
-				if (tempPlayer == currentPlayer) {
-					nextTurn();
-				}
-			}
-		}
-	}
-	
-	public Piece getCorospondingPiece(Piece p) {
-		if (p != null && p.getPos()[0] >= 0 && p.getPos()[0] < pieceGrid.length &&
-						 p.getPos()[1] >= 0 && p.getPos()[1] < pieceGrid[0].length){
-			return pieceGrid[p.getPos()[0]][p.getPos()[1]];
-		} else {
-			return null;
-		}
-	}
-	
-	private void move(Piece from, Piece to) {
-		if (from.isCaptureMove(to)) {
-			from.capture(to);
-		}
-		int[] fActualPos = from.getPos();
-		int[] tActualPos = to.getPos();
-		int[] fPos = actualPieceGrid[fActualPos[0]][fActualPos[1]].getPos();
-		int[] tPos = actualPieceGrid[tActualPos[0]][tActualPos[1]].getPos();
-		int[] direction = {(tActualPos[0] - fActualPos[0])/2, (tActualPos[1] - fActualPos[1])/2};
-		int[] linePos = {fActualPos[0] + direction[0], fActualPos[1] + direction[1]};
-		walkedAlong.add(linePos);
-		pieceGrid[fPos[0]][fPos[1]] = to;
-		pieceGrid[tPos[0]][tPos[1]] = from;
-		to.setPos(fActualPos);
-		from.setPos(tActualPos);
-		Piece temp = actualPieceGrid[fActualPos[0]][fActualPos[1]];
-		actualPieceGrid[fActualPos[0]][fActualPos[1]] = actualPieceGrid[tActualPos[0]][tActualPos[1]];
-		actualPieceGrid[tActualPos[0]][tActualPos[1]] = temp;
-		actualPieceGrid[fActualPos[0]][fActualPos[1]].setPos(fPos);
-		temp.setPos(tPos);
-		mustConferm = from.requiresConfermation();
-		moved = true;
-		if (from.canCapture()) {
-			lastMoved = from;
-		} if (mustConferm) {
-			toConfermTo = from;
-		} if (!from.canCapture() && !mustConferm) {
-			nextTurn();
-		}
-	}
-	
-	private boolean containsPos(int[] pos) {
-		for (int[] p : walkedAlong) {
-			if (p[0] == pos[0] && p[1] == pos[1]) {
-				return true;
-			}
-		}
-		 return false;
-	}
-	
-	private void nextTurn() {
-		lastMoved = null;
-		currentPlayer = (currentPlayer == Piece.getColor('W', parrent)) ? Piece.getColor('B', parrent) : Piece.getColor('W', parrent);
-		for (Piece[] row : pieceGrid) {
-			for (Piece p : row) {
-				p.resetMovement();
-			}
-		}
+	protected void nextTrurn() {
+		super.nextTurn(parrent);
 		
-		for (Piece[] row : actualPieceGrid) {
-			for (Piece p : row) {
-				if (p != null) {
-					p.resetMovement();
-				}
-			}
-		}
-		walkedAlong.clear();
 		if (whiteTimer != null && blackTimer != null) {
 			if (whiteTimer.started) {
 				whiteTimer.stop();
@@ -424,6 +275,37 @@ public class PlayingField {
 		} else {
 			return new PVector((parrent.width - pieceGrid[0].length * rectHeight)/2 + rectHeight/2, rectHeight/2 + timerHeight); 
 		}
+	}
+
+	@Override
+	protected Piece[][] makePieceGrid() {
+		Piece[][] grid = null;
+		try {
+			GridPair pair = Parser.parsePieces(System.getProperty("user.dir") + "\\data\\" + boardName);
+			char[][] chars = pair.chars;
+			int[][][] poses = pair.poses;
+			
+			grid = new Piece[chars.length][chars[0].length];
+			for (int row = 0; row < chars.length; row++) {
+				for (int col = 0; col < chars[0].length; col++) {
+					char c = chars[row][col];
+					int color = Piece.getColor(c, parrent);
+					grid[row][col] = new Piece(parrent, color, poses[row][col], this);
+					if (c == ' ') {
+						grid[row][col].setActive(false);
+					}
+				}
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+		return grid;
+	}
+
+	@Override
+	protected Piece[][] makeEmptyActualGrid() {
+		return new Piece[directionsGrid.length][directionsGrid[0].length];
 	}
 	
 	private class Timer {

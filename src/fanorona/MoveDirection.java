@@ -1,3 +1,4 @@
+package fanorona;
 import java.util.HashMap;
 
 public enum MoveDirection {
@@ -13,12 +14,12 @@ public enum MoveDirection {
 		this.deltaY = deltaY;
 	}
 	
-	boolean validMove(int[] thisPos, int[] fromPos) {
+	public boolean validMove(int[] thisPos, int[] fromPos) {
 		return (fromPos[0] + deltaY == thisPos[0] && fromPos[1] + deltaX == thisPos[1]) ||
 			   (fromPos[0] - deltaY == thisPos[0] && fromPos[1] - deltaX == thisPos[1]);
 	}
 	
-	int[] getNewPos(int[] thisPos, int[] fromPos) {
+	public int[] getNewPos(int[] thisPos, int[] fromPos) {
 		if (validMove(thisPos, fromPos)) {
 			if (fromPos[0] + deltaY == thisPos[0] && fromPos[1] + deltaX == thisPos[1]){
 				int[] res = {fromPos[0] + 2 * deltaY, fromPos[1] + 2 * deltaX};
@@ -32,12 +33,12 @@ public enum MoveDirection {
 		}
 	}
 	
-	int[] getDelta() {
+	public int[] getDelta() {
 		int[] res = {deltaY, deltaX};
 		return res;
 	}
 	
-	static MoveDirection getToken(char c) {
+	public static MoveDirection getToken(char c) {
 		HashMap<Character, MoveDirection> directionMapping = new HashMap<Character, MoveDirection>();
 		directionMapping.put('-', HORIZONTAL);
 		directionMapping.put('/', DIAGONAL_UP);
