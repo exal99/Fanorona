@@ -42,10 +42,21 @@ public abstract class FieldBase <E extends PieceBase<T, E>, T extends FieldBase<
 		walkedAlong = new ArrayList<int[]>();
 	}
 	
+	/**
+	 * Creates and returns the <code>pieceGrid</code> used in the initialisation. Must be manually called!
+	 */
 	protected abstract E[][] makePieceGrid();
 	
+	/**
+	 * Creates and returns an empty <code>pieceGrid</code>. Used for the <code>actualPieceGrid</code>.
+	 * Is automatically called during initialisation.
+	 */
 	protected abstract E[][] makeEmptyActualGrid();
 	
+	/**
+	 * Populates the <code>actualPieceGrid</code> based on the <code>directionsGrid</code>
+	 * and <code>pieceGrid</code>. Must be manually called!
+	 */
 	protected void populatePieceGrid() {
 		int actualRow = -1;
 		int actualCol = 0;
@@ -68,6 +79,10 @@ public abstract class FieldBase <E extends PieceBase<T, E>, T extends FieldBase<
 		}
 	}
 	
+	/**
+	 * Checks if one player is victorious and returns the players color if that is the case
+	 * @return The color of the winning player if there is one, else <code>0</code>
+	 */
 	public int isVictory() {
 		E found = null;
 		for (E[] row : pieceGrid) {
@@ -82,23 +97,39 @@ public abstract class FieldBase <E extends PieceBase<T, E>, T extends FieldBase<
 		return found.getColor();
 	}
 	
+	/**
+	 * Creates a array containing the two elements
+	 * @param a fist parameter
+	 * @param b second parameter
+	 * @return <code>{a, b}</code>
+	 */
 	public static int[] createPos(int a, int b) {
 		return new int[] {a,b};
 	}
 	
+	/**
+	 * Gets the directionsGrid
+	 * @return <code>directionsGrid</code>
+	 */
 	public MoveDirection[][] getDirections() {
 		return directionsGrid;
 	}
 	
+	/**
+	 * Gets the actualPieceGrid
+	 * @return <code>actualPieceGrid</code>
+	 */
 	public E[][] getActualPieceGrid() {
 		return actualPieceGrid;
 	}
 	
+	
+	/**
+	 * Checks if the move must be a capturing one.
+	 * @return <code>true</code> if the move must capture a piece else <code>false</code>
+	 */
 	public boolean mustBeCapture() {
-		/*
-		 * Returns if there is at least one piece that can capture another one i.e.
-		 * if the current move has to be a capturing one.
-		 */
+		
 		for (E[] row : pieceGrid) {
 			for (E p : row) {
 				if (p.getColor() == currentPlayer && p.isActive()) {
@@ -111,6 +142,12 @@ public abstract class FieldBase <E extends PieceBase<T, E>, T extends FieldBase<
 		return false;
 	}
 	
+	/**
+	 * Gets the piece at position <code>{row, col}</code> in the <code>actualPieceGrid</code>.
+	 * @param row the row of the piece
+	 * @param col the column of the piece
+	 * @return the piece at position <code>{row, col}</code>
+	 */
 	public E getPiece(int row, int col) {
 		if (row >= 0 && row < actualPieceGrid.length && col >= 0 && col < actualPieceGrid[0].length) {
 			return actualPieceGrid[row][col];
@@ -119,16 +156,29 @@ public abstract class FieldBase <E extends PieceBase<T, E>, T extends FieldBase<
 		}
 	}
 	
-	
-	
+	/**
+	 * Disables the piece at position <code>{row, col}</code>.
+	 * @param row the row of the piece
+	 * @param col the col of the piece
+	 */
 	public void dissablePiece(int row, int col) {
 		pieceGrid[row][col].setActive(false);
 	}
 	
+	/**
+	 * Disables the piece at position <code>pos</code>.
+	 * @param pos a two element array of the format <code>{row, col}</code>
+	 */
 	public void dissablePiece(int[] pos) {
 		dissablePiece(pos[0], pos[1]);
 	}
 	
+	/**
+	 * Moves the selected piece to <code>toMoveTo</code> if it is a valid move based on the current
+	 * game state.
+	 * @param toMoveTo the target piece to move to
+	 * @param parrent the <code>Fanorona</code> parrent
+	 */
 	protected void makeMove(E toMoveTo, Fanorona parrent) {
 		if (selected.canMoveTo(toMoveTo) && !mustConferm) {
 			if (mustBeCapture()) {
@@ -145,6 +195,14 @@ public abstract class FieldBase <E extends PieceBase<T, E>, T extends FieldBase<
 		}
 	}
 	
+	/**
+	 * Gets the coresponding piece from the <code>pieceGrid</code> i.e. converts a piece from the
+	 * <code>actualPieceGrid</code> to <code>pieceGrid</code>. <p>
+	 * 
+	 * <code>actualPieceGrid</code> --> <code>pieceGrid</code>
+	 * @param p a piece from the <code>actualPieceGrid</code>
+	 * @return a piece from the <code>pieceGrid<c/ode> corresponding to <code>p</code>
+	 */
 	public E getCorospondingPiece(E p) {
 		if (p != null && p.getPos()[0] >= 0 && p.getPos()[0] < pieceGrid.length &&
 						 p.getPos()[1] >= 0 && p.getPos()[1] < pieceGrid[0].length){
@@ -154,6 +212,15 @@ public abstract class FieldBase <E extends PieceBase<T, E>, T extends FieldBase<
 		}
 	}
 	
+	/**
+	 * Moves piece <code>from</code> to <code>to</code> capturing pieces if the move is a capturing one.
+	 * Also advances the turns if the piece cannot capture any pieces anymore. <p>
+	 * 
+	 * <b>This method does not make any checks to see if the move is valid!</b>
+	 * @param from the piece that moves.
+	 * @param to the target of the move.
+	 * @param parrent the <code>Fanorona</code> parrent.
+	 */
 	protected void move(E from, E to, Fanorona parrent) {
 		if (from.isCaptureMove(to)) {
 			from.capture(to);
@@ -185,6 +252,11 @@ public abstract class FieldBase <E extends PieceBase<T, E>, T extends FieldBase<
 		}
 	}
 	
+	/**
+	 * Makes everything ready for the next turn, i.e. reseting last movements and updating
+	 * the current player.
+	 * @param parrent the <code>Fanorona</code> parrent.
+	 */
 	protected void nextTurn(Fanorona parrent) {
 		lastMoved = null;
 		currentPlayer = (currentPlayer == Piece.getColor('W', parrent)) ? Piece.getColor('B', parrent) : Piece.getColor('W', parrent);
@@ -204,6 +276,12 @@ public abstract class FieldBase <E extends PieceBase<T, E>, T extends FieldBase<
 		walkedAlong.clear();
 	}
 	
+	/**
+	 * Checks if <code>walkedAlong</code> contains the given position i.e. if the is a element <code>p</code>
+	 * such that <code>p[0] == pos[0] && p[1] == pos[1]</code>.
+	 * @param pos a two element array.
+	 * @return <code>true</code> if <code>pos</code> is in <code>walkedAlong</code> else <code>false</code>.
+	 */
 	protected boolean containsPos(int[] pos) {
 		for (int[] p : walkedAlong) {
 			if (p[0] == pos[0] && p[1] == pos[1]) {
