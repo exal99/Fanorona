@@ -47,4 +47,21 @@ public enum MoveDirection {
 		return directionMapping.getOrDefault(c, CONNECTION);
 	}
 	
+	public String toString() {
+		switch(this) {
+		case CONNECTION:
+			return " ";
+		case DIAGONAL_DOWN:
+			return "\\";
+		case DIAGONAL_UP:
+			return "/";
+		case HORIZONTAL:
+			return "-";
+		case VERTICAL:
+			return "|";
+		default:
+			return null;
+		}
+	}
+	
 }

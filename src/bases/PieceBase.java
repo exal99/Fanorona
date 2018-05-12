@@ -1,12 +1,13 @@
 package bases;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import fanorona.MoveDirection;
 import fanorona.PlayingField;
 import processing.core.PApplet;
 
-public abstract class PieceBase<E extends FieldBase<T, E>, T extends PieceBase<E,T>>  implements Cloneable<PieceBase<E,T>>{
+public abstract class PieceBase<E extends FieldBase<T, E>, T extends PieceBase<E,T>>  implements Cloneable<T, E>{
 	protected int[] pos;
 	protected boolean active;
 	protected E grid;
@@ -28,6 +29,26 @@ public abstract class PieceBase<E extends FieldBase<T, E>, T extends PieceBase<E
 		canConfermWith = makeConfermPair();
 	}
 	
+	public ArrayList<int[]> getVisited() {
+		return visited;
+	}
+
+	public int[] getLastDirection() {
+		return lastDirection;
+	}
+
+	public boolean isRequireConferm() {
+		return requireConferm;
+	}
+
+	public T[] getCanConfermWith() {
+		return canConfermWith;
+	}
+
+	public boolean isConfermOption() {
+		return confermOption;
+	}
+
 	/**
 	 * Creates a new 2 element piece-array used for the confirmation pair
 	 * @return a 2 element piece-array.
@@ -198,7 +219,7 @@ public abstract class PieceBase<E extends FieldBase<T, E>, T extends PieceBase<E
 	 * @param newCol the new column in the <code>actualPieceGrid</code>.
 	 * @return <code>true</code> if it is a capturing move else <code>false</code>.
 	 */
-	protected boolean isCaptureMove(int newRow, int newCol) {
+	public boolean isCaptureMove(int newRow, int newCol) {
 		int[] direction = {newRow - pos[0], newCol - pos[1]};
 		T pushPiece = grid.getPiece(newRow + direction[0], newCol + direction[1]);
 		T pullPiece = grid.getPiece(pos[0] - direction[0], pos[1] - direction[1]);
@@ -267,7 +288,7 @@ public abstract class PieceBase<E extends FieldBase<T, E>, T extends PieceBase<E
 	 * @param p the confirm piece. This piece should come from <b><code>pieceGrid</code></b>.
 	 */
 	public void conferm(T p) {
-		if (canConfermWith[0] == p || canConfermWith[1] == p) {
+		if (canConfermWith[0].equals(p) || canConfermWith[1].equals(p)) {
 			int newX = p.getPos()[0];
 			int newY = p.getPos()[1];
 			int[] direction = {newX - pos[0], newY - pos[1]};
@@ -322,6 +343,16 @@ public abstract class PieceBase<E extends FieldBase<T, E>, T extends PieceBase<E
 		}
 	}
 	
-	public abstract T clone();
+	@SuppressWarnings("rawtypes")
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof PieceBase) {
+			return Arrays.equals(((PieceBase) obj).pos, pos);
+		} return false;
+	}
+	
+	//public abstract T clone(E grid);
+	
+	public abstract T copy();
 
 }

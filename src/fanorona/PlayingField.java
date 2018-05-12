@@ -2,6 +2,7 @@ package fanorona;
 import java.text.ParseException;
 import java.util.ArrayList;
 
+import ai.PlayingFieldTree;
 import bases.FieldBase;
 import fanorona.Parser.GridPair;
 import processing.core.PApplet;
@@ -153,6 +154,12 @@ public class PlayingField extends FieldBase<Piece, PlayingField>{
 		parrent.popMatrix();
 	}
 	
+	public void aiMove(int color) {
+		if (color == currentPlayer) {
+			PlayingFieldTree.makeBestMove(this, parrent, 5);
+		}
+	}
+	
 	public void mousePressed(int mouseX, int mouseY) {
 		Piece found = null;
 		for (Piece[] row : pieceGrid) {
@@ -160,13 +167,14 @@ public class PlayingField extends FieldBase<Piece, PlayingField>{
 				if (p.isClicked(mouseX, mouseY) && (p.getColor() == currentPlayer || (selected != null && !p.isActive()))) {
 					found = p;
 				} else if (p.isClicked(mouseX, mouseY) && mustConferm) {
-					toConfermTo.conferm(p);
-					mustConferm = toConfermTo.requiresConfermation();
-					if (!mustConferm) {
-						toConfermTo = null;
-					} if (!selected.canCapture()) {
-						nextTurn(parrent);
-					}
+					conferm(p, parrent);
+//					toConfermTo.conferm(p);
+//					mustConferm = toConfermTo.requiresConfermation();
+//					if (!mustConferm) {
+//						toConfermTo = null;
+//					} if (!selected.canCapture()) {
+//						nextTurn(parrent);
+//					}
 				}
 			}
 		}

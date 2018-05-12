@@ -13,6 +13,7 @@ public class Fanorona extends PApplet {
 	private MenuInterface gameSpeed;
 	private ConfermMenuInterface gameOver;
 	private Screen currScreen;
+	private boolean multiplayer;
 	
 	public void settings() {
 		size(800,600);
@@ -129,18 +130,27 @@ public class Fanorona extends PApplet {
 
 	private void makeMainMenu() {
 		LinkedHashMap<String, Callable<Object>> menu = new LinkedHashMap<String, Callable<Object>>();
-		menu.put("Start", new Callable<Object>() {
+		menu.put("Play", new Callable<Object>() {
 
 			@Override
-			public Object call() throws Exception {
+			public Object call(){
 				currScreen = Screen.DIFFICULITY;
+				multiplayer = false;
+				return null;
+			}
+		});
+		menu.put("Local Multiplayer", new Callable<Object>() {
+			@Override
+			public Object call() {
+				currScreen = Screen.DIFFICULITY;
+				multiplayer = true;
 				return null;
 			}
 		});
 		menu.put("Quit", new Callable<Object>() {
 			
 			@Override
-			public Object call() throws Exception {
+			public Object call() {
 				back();
 				return null;
 			}
@@ -173,7 +183,12 @@ public class Fanorona extends PApplet {
 	public void mousePressed() {
 		if (currScreen == Screen.GAME) {
 			p.mousePressed(mouseX, mouseY);
+			if (!multiplayer && p.isVictory() == 0) {
+				p.aiMove(Piece.getColor('B', this));
+			}
 		}
+		
+		
 	}
 	
 	public void keyPressed() {

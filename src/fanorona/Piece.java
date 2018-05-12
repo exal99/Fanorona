@@ -3,6 +3,7 @@ package fanorona;
 import bases.PieceBase;
 import processing.core.PApplet;
 import processing.core.PVector;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class Piece extends PieceBase<PlayingField, Piece>{
 	private PApplet parrent;
@@ -122,6 +123,11 @@ public class Piece extends PieceBase<PlayingField, Piece>{
 		return res;
 	}
 	
+	@Override 
+	public Piece copy() {
+		return clone();
+	}
+	
 	@Override
 	public String toString() {
 		return super.toString(parrent);
@@ -141,5 +147,10 @@ public class Piece extends PieceBase<PlayingField, Piece>{
 	@Override
 	protected Piece[] makeConfermPair() {
 		return new Piece[2];
+	}
+
+	@Override
+	public Piece clone(PlayingField base) {
+		throw new NotImplementedException();
 	}
 }
